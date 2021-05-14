@@ -7,6 +7,7 @@
 
 #include "ssd1306.h"
 #include "font8x8_basic.h"
+#include "gatts_server.h"
 
 /*
  You have to set this config value with menuconfig
@@ -195,6 +196,7 @@ void run_demo(){
 
 void app_main(void)
 {
+	setup_ble();
 	config_display();
 	run_demo();
 
