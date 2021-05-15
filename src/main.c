@@ -5,6 +5,7 @@
 #include "freertos/task.h"
 #include "esp_log.h"
 #include "nvs_flash.h"
+#include "dir_icons.h"
 
 #include "ssd1306.h"
 #include "font8x8_basic.h"
@@ -70,14 +71,15 @@ void config_display(){
 	ssd1306_contrast(&dev, 0xff);
 }
 
-void run_demo(){
-	vTaskDelay(1000 / portTICK_PERIOD_MS);
-
-	uint8_t image[64];
-	memset(image,0xF0,sizeof(image));
-
+void display_turn_right(){
 	for(int i = 0;i<PAGE_COUNT;i++){
-		ssd1306_display_image(&dev, i,0,image, sizeof(image));
+		ssd1306_display_image(&dev, i,0,turn_right[i], 128);
+	}
+}
+
+void display_turn_left(){
+	for(int i = 0;i<PAGE_COUNT;i++){
+		ssd1306_display_image(&dev, i,0,turn_left[i], 128);
 	}
 }
 
@@ -90,10 +92,11 @@ void app_main(void)
         ESP_ERROR_CHECK(nvs_flash_erase());
         ret = nvs_flash_init();
     }
-
     ESP_ERROR_CHECK(ret);
-	setup_ble();
-	config_display();
-	run_demo();
 
+	setup_ble();
+
+	config_display();
+	vTaskDelay(1000 / portTICK_PERIOD_MS);
+	display_turn_left();
 }
