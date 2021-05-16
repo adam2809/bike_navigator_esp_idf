@@ -92,6 +92,15 @@ void display_turn_left(){
 	display_full_display_image(turn_left);
 }
 
+void display_straight(){
+	uint8_t full_light[8][128];
+	for(int i =0;i<PAGE_COUNT;i++){
+		memset(full_light[i],0xFF,128);
+	}
+	clear_display();
+	display_full_display_image(full_light);
+}
+
 static void dir_disp_task(void *pvParameter){
     while(1){
         vTaskDelay(1000 / portTICK_PERIOD_MS);
@@ -119,6 +128,7 @@ static void dir_disp_task(void *pvParameter){
 			display_turn_right();
         }else if(currDir == STRAIGHT){
             ESP_LOGI(tag,"Displaying go straight");
+			display_straight();
         }else if(currDir == TURN_LEFT){	
             ESP_LOGI(tag,"Displaying turn left");
 			display_turn_left();
