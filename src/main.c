@@ -105,18 +105,6 @@ static void dir_disp_task(void *pvParameter){
     while(1){
         vTaskDelay(1000 / portTICK_PERIOD_MS);
 
-        uint16_t length = 1;
-        const uint8_t *prf_char;
-        esp_err_t get_attr_ret = esp_ble_gatts_get_attr_value(gl_profile.char_handle,  &length, &prf_char);
-        if (get_attr_ret == ESP_FAIL){
-            ESP_LOGE(tag, "Could not get attribute value (Handle %x)",gl_profile.char_handle);
-            continue;
-        }
-        if(length != 1){
-            ESP_LOGE(tag, "Wrong attribute value length");
-            continue;
-        }
-
 		struct dir_data currDir;
 		get_dir_status(&currDir);
 

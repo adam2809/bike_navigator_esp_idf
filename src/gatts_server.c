@@ -4,7 +4,7 @@
 
 
 
-uint8_t char_dirs[] = { NO_DIR };
+uint8_t char_dirs[] = { NO_DIR,0 };
 esp_gatt_char_prop_t a_property = 0;
 
 esp_attr_value_t gatts_demo_char1_val =
@@ -182,10 +182,12 @@ void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp
 
         ESP_LOGI(tag, "GATT_WRITE_EVT, value len %d, value :", param->write.len);
         esp_log_buffer_hex(tag, param->write.value, param->write.len);
-        if (gl_profile.char_handle == param->write.handle && param->write.len == 1){
+        if (gl_profile.char_handle == param->write.handle && param->write.len == DIR_DATA_LENGTH){
             ESP_LOGI(tag, "Setting new value");
 
-            char_dirs[0] = param->write.value[0];
+            for(int i=0;i<DIR_DATA_LENGTH;i++){
+                char_dirs[i] = param->write.value[i];
+            }
             esp_ble_gatts_set_attr_value(gl_profile.char_handle,sizeof(char_dirs),char_dirs);
             esp_ble_gatts_send_indicate(gatts_if, param->write.conn_id, gl_profile.char_handle,sizeof(char_dirs), char_dirs, false);
         }
@@ -343,7 +345,7 @@ bool get_dir_status(struct dir_data* out){
     }
 
     out->dir = prf_char[0];
-    out->meters = 20;
+    out->meters = prf_char[1];
     ESP_LOGI(tag,"Current dirs are: dir=%d,meters=%d",out->dir,out->meters);
     return true;
 
