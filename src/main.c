@@ -34,6 +34,11 @@ int center, top, bottom;
 char lineChar[20];
 direction prevDir = NO_DIR;
 
+void clear_display(){
+	ssd1306_clear_screen(&dev, false);
+	ssd1306_contrast(&dev, 0xff);
+}
+
 void config_display(){
 
 	#if CONFIG_I2C_INTERFACE
@@ -68,24 +73,23 @@ void config_display(){
 		ssd1306_init(&dev, 128, 32);
 	#endif // CONFIG_SSD1306_128x32
 
-	ssd1306_clear_screen(&dev, false);
-	ssd1306_contrast(&dev, 0xff);
+	clear_display();
+}
+
+void display_full_display_image(uint8_t image[8][128]){
+	for(int i = 0;i<PAGE_COUNT;i++){
+		ssd1306_display_image(&dev, i,0,image[i], 128);
+	}
 }
 
 void display_turn_right(){
-	ssd1306_clear_screen(&dev, false);
-	ssd1306_contrast(&dev, 0xff);
-	for(int i = 0;i<PAGE_COUNT;i++){
-		ssd1306_display_image(&dev, i,0,turn_right[i], 128);
-	}
+	clear_display();
+	display_full_display_image(turn_right);
 }
 
 void display_turn_left(){
-	ssd1306_clear_screen(&dev, false);
-	ssd1306_contrast(&dev, 0xff);
-	for(int i = 0;i<PAGE_COUNT;i++){
-		ssd1306_display_image(&dev, i,0,turn_left[i], 128);
-	}
+	clear_display();
+	display_full_display_image(turn_left);
 }
 
 static void dir_disp_task(void *pvParameter){
@@ -120,8 +124,7 @@ static void dir_disp_task(void *pvParameter){
 			display_turn_left();
         }else if(currDir == NO_DIR){
             ESP_LOGI(tag,"Displaying no dir");
-			ssd1306_clear_screen(&dev, false);
-			ssd1306_contrast(&dev, 0xff);
+			clear_display();
         }else{
             ESP_LOGW(tag,"Invalid direction in characteristic value attribute");
         }
