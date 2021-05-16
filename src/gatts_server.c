@@ -328,3 +328,23 @@ void setup_ble(){
         ESP_LOGE(tag, "set local  MTU failed, error code = %x", local_mtu_ret);
     }
 }
+
+bool get_dir_status(struct dir_data* out){
+    uint16_t length = DIR_DATA_LENGTH;
+    const uint8_t *prf_char;
+    esp_err_t get_attr_ret = esp_ble_gatts_get_attr_value(gl_profile.char_handle,  &length, &prf_char);
+    if (get_attr_ret == ESP_FAIL){
+        ESP_LOGE(tag, "Could not get attribute value (Handle %x)",gl_profile.char_handle);
+        return false;
+    }
+    if(length != DIR_DATA_LENGTH){
+        ESP_LOGE(tag, "Wrong attribute value length");
+        return false;
+    }
+
+    out->dir = prf_char[0];
+    out->meters = 20;
+    ESP_LOGI(tag,"Current dirs are: dir=%d,meters=%d",out->dir,out->meters);
+    return true;
+
+}

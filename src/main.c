@@ -32,7 +32,7 @@
 SSD1306_t dev;
 int center, top, bottom;
 char lineChar[20];
-direction prevDir = NO_DIR;
+struct dir_data prevDir = {NO_DIR,0};
 
 void clear_display(){
 	ssd1306_clear_screen(&dev, false);
@@ -117,22 +117,23 @@ static void dir_disp_task(void *pvParameter){
             continue;
         }
 
-		direction currDir = prf_char[0];
+		struct dir_data currDir;
+		get_dir_status(&currDir);
 
-		if(prevDir == currDir){
+		if(prevDir.dir == currDir.dir && prevDir.meters == currDir.meters){
 			continue;
 		}
 
-        if(currDir == TURN_RIGHT){
+        if(currDir.dir == TURN_RIGHT){
             ESP_LOGI(tag,"Displaying turn right");
 			display_turn_right();
-        }else if(currDir == STRAIGHT){
+        }else if(currDir.dir == STRAIGHT){
             ESP_LOGI(tag,"Displaying go straight");
 			display_straight();
-        }else if(currDir == TURN_LEFT){	
+        }else if(currDir.dir == TURN_LEFT){	
             ESP_LOGI(tag,"Displaying turn left");
 			display_turn_left();
-        }else if(currDir == NO_DIR){
+        }else if(currDir.dir == NO_DIR){
             ESP_LOGI(tag,"Displaying no dir");
 			clear_display();
         }else{

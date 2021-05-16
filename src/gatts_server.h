@@ -24,6 +24,7 @@ void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp
 #define MANUFACTURER_DATA_LEN  17
 
 #define DIR_CHAR_VAL_LEN_MAX 0x40
+#define DIR_DATA_LENGTH 1
 
 #define PREPARE_BUF_MAX_SIZE 1024
 
@@ -54,10 +55,16 @@ struct gatts_profile_inst {
     uint16_t descr_handle;
     esp_bt_uuid_t descr_uuid;
 };
+struct dir_data {
+    direction dir;
+    uint16_t meters;
+};
+
 
 struct gatts_profile_inst gl_profile;
 
 void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param);
 void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param);
 void setup_ble();
+bool get_dir_status(struct dir_data* out);
 #endif
