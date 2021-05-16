@@ -82,23 +82,37 @@ void display_full_display_image(uint8_t image[8][128]){
 	}
 }
 
-void display_turn_right(){
-	clear_display();
-	display_full_display_image(turn_right);
-}
-
-void display_turn_left(){
-	clear_display();
-	display_full_display_image(turn_left);
-}
-
 void display_straight(){
 	uint8_t full_light[8][128];
 	for(int i =0;i<PAGE_COUNT;i++){
 		memset(full_light[i],0xFF,128);
 	}
-	clear_display();
 	display_full_display_image(full_light);
+}
+
+void update_dir_display(struct dir_data* data){
+	clear_display();
+
+	if(data->dir == TURN_RIGHT){
+		ESP_LOGI(tag,"Displaying turn right");
+		display_full_display_image(turn_right);
+	}else if(data->dir == STRAIGHT){
+		ESP_LOGI(tag,"Displaying go straight");
+		display_straight();
+	}else if(data->dir == TURN_LEFT){	
+		ESP_LOGI(tag,"Displaying turn left");
+		display_full_display_image(turn_left);
+	}else if(data->dir == NO_DIR){
+		ESP_LOGI(tag,"Displaying no dir");
+		clear_display();
+		return;
+	}else{
+		ESP_LOGW(tag,"Invalid direction in characteristic value attribute");
+	}
+
+	char meters_str[10];
+	sprintf(meters_str,"%dm",data->meters);
+	ssd1306_display_text(&dev, 0, meters_str, strlen(meters_str), false);
 }
 
 static void dir_disp_task(void *pvParameter){
@@ -112,21 +126,7 @@ static void dir_disp_task(void *pvParameter){
 			continue;
 		}
 
-        if(currDir.dir == TURN_RIGHT){
-            ESP_LOGI(tag,"Displaying turn right");
-			display_turn_right();
-        }else if(currDir.dir == STRAIGHT){
-            ESP_LOGI(tag,"Displaying go straight");
-			display_straight();
-        }else if(currDir.dir == TURN_LEFT){	
-            ESP_LOGI(tag,"Displaying turn left");
-			display_turn_left();
-        }else if(currDir.dir == NO_DIR){
-            ESP_LOGI(tag,"Displaying no dir");
-			clear_display();
-        }else{
-            ESP_LOGW(tag,"Invalid direction in characteristic value attribute");
-        }
+        update_dir_display(&currDir);
 
 		prevDir = currDir;
     }

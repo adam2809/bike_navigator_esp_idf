@@ -346,7 +346,6 @@ bool get_dir_status(struct dir_data* out){
 
     out->dir = prf_char[0];
     out->meters = prf_char[1];
-    ESP_LOGI(tag,"Current dirs are: dir=%d,meters=%d",out->dir,out->meters);
     return true;
 
 }
