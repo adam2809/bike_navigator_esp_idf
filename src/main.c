@@ -32,6 +32,7 @@
 SSD1306_t dev;
 int center, top, bottom;
 char lineChar[20];
+direction prevDir = NO_DIR;
 
 void config_display(){
 
@@ -72,16 +73,63 @@ void config_display(){
 }
 
 void display_turn_right(){
+	ssd1306_clear_screen(&dev, false);
+	ssd1306_contrast(&dev, 0xff);
 	for(int i = 0;i<PAGE_COUNT;i++){
 		ssd1306_display_image(&dev, i,0,turn_right[i], 128);
 	}
 }
 
 void display_turn_left(){
+	ssd1306_clear_screen(&dev, false);
+	ssd1306_contrast(&dev, 0xff);
 	for(int i = 0;i<PAGE_COUNT;i++){
 		ssd1306_display_image(&dev, i,0,turn_left[i], 128);
 	}
 }
+
+static void dir_disp_task(void *pvParameter){
+    while(1){
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+
+        uint16_t length = 1;
+        const uint8_t *prf_char;
+        esp_err_t get_attr_ret = esp_ble_gatts_get_attr_value(gl_profile.char_handle,  &length, &prf_char);
+        if (get_attr_ret == ESP_FAIL){
+            ESP_LOGE(tag, "Could not get attribute value (Handle %x)",gl_profile.char_handle);
+            continue;
+        }
+        if(length != 1){
+            ESP_LOGE(tag, "Wrong attribute value length");
+            continue;
+        }
+
+		direction currDir = prf_char[0];
+
+		if(prevDir == currDir){
+			continue;
+		}
+
+        if(currDir == TURN_RIGHT){
+            ESP_LOGI(tag,"Displaying turn right");
+			display_turn_right();
+        }else if(currDir == STRAIGHT){
+            ESP_LOGI(tag,"Displaying go straight");
+        }else if(currDir == TURN_LEFT){	
+            ESP_LOGI(tag,"Displaying turn left");
+			display_turn_left();
+        }else if(currDir == NO_DIR){
+            ESP_LOGI(tag,"Displaying no dir");
+			ssd1306_clear_screen(&dev, false);
+			ssd1306_contrast(&dev, 0xff);
+        }else{
+            ESP_LOGW(tag,"Invalid direction in characteristic value attribute");
+        }
+
+		prevDir = currDir;
+    }
+}
+
 
 void app_main(void)
 {
@@ -98,5 +146,6 @@ void app_main(void)
 
 	config_display();
 	vTaskDelay(1000 / portTICK_PERIOD_MS);
-	display_turn_left();
+
+	xTaskCreate(&dir_disp_task, "display_dir_on_oled", 2048, NULL, 5, NULL);
 }
