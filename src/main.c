@@ -112,6 +112,7 @@ void update_dir_display(struct dir_data* data){
 
 	char meters_str[10];
 	sprintf(meters_str,"%dm",data->meters);
+	ESP_LOGI(tag,"Displaying %d meters",data->meters);
 	ssd1306_display_text(&dev, 0, meters_str, strlen(meters_str), false);
 }
 
