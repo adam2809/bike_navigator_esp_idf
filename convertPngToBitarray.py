@@ -23,19 +23,28 @@ def bit_arr_to_int(bit_arr):
         res += bit * (2**i)
     return res
 
-img = cv2.imread(sys.argv[1],0)
-print(f"Shape of image: {img.shape}")
-display_img(img,'og')
 
-img = np.vectorize(negate)(img)
+def get_bit_arr_str_from_img(img_arr):
+    res = ''
+    res += '{\n'
+    for i in range(8):
+        page = '\t{'
+        for j in range(128):
+            page+= hex(bit_arr_to_int(img_arr[i*8:(i+1)*8,j]))+','
+        page = page[:-1]
+        page += '}'
+        page += ',' if i != 7 else ''
+        res += page+"\n"
+    res += '}\n'
 
-print('{')
-for i in range(8):
-    page = '\t{'
-    for j in range(128):
-        page+= hex(bit_arr_to_int(img[i*8:(i+1)*8,j]))+','
-    page = page[:-1]
-    page += '}'
-    page += ',' if i != 7 else ''
-    print(page)
-print('}')
+    return res
+
+print("{")
+for i in range(18):
+    img = cv2.imread(f"frames/newRightTurnShort{i}.png",0)
+
+    img = np.vectorize(negate)(img)
+
+    print(get_bit_arr_str_from_img(img)+",")
+print("}")
+

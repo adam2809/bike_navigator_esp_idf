@@ -133,10 +133,25 @@ static void dir_disp_task(void *pvParameter){
     }
 }
 
+int currAnimationFrame = 0;
+int animationDirection = -1;
+
+static void animation_disp_task(void *pvParameter){
+    while(1){
+        vTaskDelay(50 / portTICK_PERIOD_MS);
+
+		display_full_display_image(turn_right_animation[currAnimationFrame]);
+
+		if(currAnimationFrame == 17 || currAnimationFrame == 0){
+			animationDirection *= -1;
+		}
+
+		currAnimationFrame+=animationDirection;
+	}
+}
 
 void app_main(void)
 {
-
     esp_err_t ret;
     ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
@@ -151,4 +166,5 @@ void app_main(void)
 	vTaskDelay(1000 / portTICK_PERIOD_MS);
 
 	xTaskCreate(&dir_disp_task, "display_dir_on_oled", 2048, NULL, 5, NULL);
+	// xTaskCreate(&animation_disp_task, "animation_right_turn_on_oled", 2048, NULL, 5, NULL);
 }
