@@ -39,12 +39,9 @@ def get_bit_arr_str_from_img(img_arr):
 
     return res
 
-print("{")
-for i in range(18):
-    img = cv2.imread(f"frames/newRightTurnShort{i}.png",0)
+img = cv2.imread(sys.argv[1],0)
 
-    img = np.vectorize(negate)(img)
+img = np.vectorize(negate)(img)
 
-    print(get_bit_arr_str_from_img(img)+",")
-print("}")
+print(get_bit_arr_str_from_img(img))
 
