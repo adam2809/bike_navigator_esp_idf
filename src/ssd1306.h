@@ -71,6 +71,9 @@ Usage:
 #define	I2CAddress 0x3C 
 #define	SPIAddress 0xFF 
 
+#define MAX_PAGE_COUNT 8
+#define MAX_WIDTH 128
+
 typedef enum {
 	SCROLL_RIGHT = 1,
 	SCROLL_LEFT = 2,
@@ -103,6 +106,8 @@ typedef struct {
 void ssd1306_init(SSD1306_t * dev, int width, int height);
 void ssd1306_display_text(SSD1306_t * dev, int page, char * text, int text_len, bool invert);
 void ssd1306_display_image(SSD1306_t * dev, int page, int seg, uint8_t * images, int width);
+void display_fullscreen_image(SSD1306_t* dev,uint8_t image[8][128]);
+void display_partial_image(SSD1306_t* dev,uint8_t image[8][37],int page,int page_count,int seg,int width);
 void ssd1306_clear_screen(SSD1306_t * dev, bool invert);
 void ssd1306_clear_line(SSD1306_t * dev, int page, bool invert);
 void ssd1306_contrast(SSD1306_t * dev, int contrast);

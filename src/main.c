@@ -26,7 +26,6 @@
  CONFIG_DC_GPIO
  CONFIG_RESET_GPIO
 */
-#define PAGE_COUNT 8
 #define tag "SSD1306"
 
 SSD1306_t dev;
@@ -76,32 +75,18 @@ void config_display(){
 	clear_display();
 }
 
-void display_full_display_image(uint8_t image[8][128]){
-	for(int i = 0;i<PAGE_COUNT;i++){
-		ssd1306_display_image(&dev, i,0,image[i], 128);
-	}
-}
-
-void display_straight(){
-	uint8_t full_light[8][128];
-	for(int i =0;i<PAGE_COUNT;i++){
-		memset(full_light[i],0xFF,128);
-	}
-	display_full_display_image(full_light);
-}
-
 void update_dir_display(struct dir_data* data){
 	clear_display();
 
 	if(data->dir == TURN_RIGHT){
 		ESP_LOGI(tag,"Displaying turn right");
-		display_full_display_image(turn_right);
+		display_partial_image(&dev,turn_right,0,8,0,TURN_WIDTH);
 	}else if(data->dir == STRAIGHT){
 		ESP_LOGI(tag,"Displaying go straight");
-		display_straight();
+		display_partial_image(&dev,straight,0,8,0,TURN_WIDTH);
 	}else if(data->dir == TURN_LEFT){	
 		ESP_LOGI(tag,"Displaying turn left");
-		display_full_display_image(turn_left);
+		display_partial_image(&dev,turn_left,0,8,0,TURN_WIDTH);
 	}else if(data->dir == NO_DIR){
 		ESP_LOGI(tag,"Displaying no dir");
 		clear_display();
@@ -113,10 +98,9 @@ void update_dir_display(struct dir_data* data){
 	char meters_str[10];
 	sprintf(meters_str,"%dm",data->meters);
 	ESP_LOGI(tag,"Displaying %d meters",data->meters);
-	ssd1306_display_text(&dev, 0, meters_str, strlen(meters_str), false);
 }
 
-static void dir_disp_task(void *pvParameter){
+void dir_disp_task(void *pvParameter){
     while(1){
         vTaskDelay(1000 / portTICK_PERIOD_MS);
 
@@ -131,23 +115,6 @@ static void dir_disp_task(void *pvParameter){
 
 		prevDir = currDir;
     }
-}
-
-int currAnimationFrame = 0;
-int animationDirection = -1;
-
-static void animation_disp_task(void *pvParameter){
-    while(1){
-        vTaskDelay(50 / portTICK_PERIOD_MS);
-
-		display_full_display_image(turn_right_animation[currAnimationFrame]);
-
-		if(currAnimationFrame == 17 || currAnimationFrame == 0){
-			animationDirection *= -1;
-		}
-
-		currAnimationFrame+=animationDirection;
-	}
 }
 
 void app_main(void)
@@ -166,5 +133,4 @@ void app_main(void)
 	vTaskDelay(1000 / portTICK_PERIOD_MS);
 
 	xTaskCreate(&dir_disp_task, "display_dir_on_oled", 2048, NULL, 5, NULL);
-	// xTaskCreate(&animation_disp_task, "animation_right_turn_on_oled", 2048, NULL, 5, NULL);
 }

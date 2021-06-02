@@ -40,6 +40,22 @@ void ssd1306_display_text(SSD1306_t * dev, int page, char * text, int text_len, 
 	}
 }
 
+void display_partial_image(SSD1306_t* dev,uint8_t image[8][37],int page,int page_count,int seg,int width){
+	if(page + page_count > MAX_PAGE_COUNT || seg + width > MAX_WIDTH){
+		return;
+	}
+
+	for(uint8_t i=page;i<page + page_count;i++){
+		ssd1306_display_image(dev,i,seg,image[i],width);
+	}
+}
+
+void display_fullscreen_image(SSD1306_t* dev,uint8_t image[8][128]){
+	for(int i = 0;i<MAX_PAGE_COUNT;i++){
+		ssd1306_display_image(dev, i,0,image[i], 128);
+	}
+}
+
 void ssd1306_display_image(SSD1306_t * dev, int page, int seg, uint8_t * images, int width)
 {
 	if (dev->_address == SPIAddress) {
