@@ -40,7 +40,7 @@ void ssd1306_display_text(SSD1306_t * dev, int page, char * text, int text_len, 
 	}
 }
 
-void display_partial_image(SSD1306_t* dev,uint8_t image[8][37],int page,int page_count,int seg,int width){
+void display_partial_image(SSD1306_t* dev,uint8_t** image,int page,int page_count,int seg,int width){
 	if(page + page_count > MAX_PAGE_COUNT || seg + width > MAX_WIDTH){
 		return;
 	}

@@ -75,18 +75,31 @@ void config_display(){
 	clear_display();
 }
 
-void update_dir_display(struct dir_data* data){
-	clear_display();
+void display_turn(uint8_t icon[TURN_PAGE_COUNT][TURN_WIDTH]){
+	uint8_t* buf[TURN_PAGE_COUNT];
+	for(int i=0;i<TURN_PAGE_COUNT;i++){
+		size_t size = TURN_WIDTH * sizeof(uint8_t);
+		buf[i] = (uint8_t*) malloc(size);
+		memcpy(buf[i],icon[i],size);
+	}
 
+	display_partial_image(&dev,buf,0,8,0,TURN_WIDTH);
+
+	for(int i=0;i<TURN_PAGE_COUNT;i++){
+		free(buf[i]);
+	}
+}
+
+void update_dir_display(struct dir_data* data){
 	if(data->dir == TURN_RIGHT){
 		ESP_LOGI(tag,"Displaying turn right");
-		display_partial_image(&dev,turn_right,0,8,0,TURN_WIDTH);
+		display_turn(turn_right);
 	}else if(data->dir == STRAIGHT){
 		ESP_LOGI(tag,"Displaying go straight");
-		display_partial_image(&dev,straight,0,8,0,TURN_WIDTH);
+		display_turn(straight);
 	}else if(data->dir == TURN_LEFT){	
 		ESP_LOGI(tag,"Displaying turn left");
-		display_partial_image(&dev,turn_left,0,8,0,TURN_WIDTH);
+		display_turn(turn_left);
 	}else if(data->dir == NO_DIR){
 		ESP_LOGI(tag,"Displaying no dir");
 		clear_display();
