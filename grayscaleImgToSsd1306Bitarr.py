@@ -22,7 +22,7 @@ def bit_arr_to_int(bit_arr):
 
 
 def get_bit_arr_str_from_img(img_arr):
-    img_arr = grayscale_to_negated_bitarr(img_arr)
+    img_arr = grayscale_to_negated_bitarr(img_arr)[:,::-1]
     width  = img_arr.shape[1]
     height  = img_arr.shape[0]
 
