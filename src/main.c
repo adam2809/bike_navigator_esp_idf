@@ -83,10 +83,40 @@ void display_turn(uint8_t icon[TURN_PAGE_COUNT][TURN_WIDTH]){
 		memcpy(buf[i],icon[i],size);
 	}
 
-	display_partial_image(&dev,buf,0,8,0,TURN_WIDTH);
+	display_partial_image(&dev,buf,0,TURN_PAGE_COUNT,0,TURN_WIDTH);
 
 	for(int i=0;i<TURN_PAGE_COUNT;i++){
 		free(buf[i]);
+	}
+}
+
+void display_number(uint8_t number[NUMBER_PAGE_COUNT][NUMBER_WIDTH]){
+	uint8_t* buf[NUMBER_PAGE_COUNT];
+	for(int i=0;i<NUMBER_PAGE_COUNT;i++){
+		size_t size = NUMBER_WIDTH * sizeof(uint8_t);
+		buf[i] = (uint8_t*) malloc(size);
+		memcpy(buf[i],number[i],size);
+	}
+
+	display_partial_image(&dev,buf,0,NUMBER_PAGE_COUNT,50,NUMBER_WIDTH);
+
+	for(int i=0;i<NUMBER_PAGE_COUNT;i++){
+		free(buf[i]);
+	}
+}
+int currMeters=0;
+void display_meters(uint32_t meters){
+	if(meters == 0){
+		display_number(numbers[0]);
+		return;
+	}
+
+	while(meters != 0){
+		uint32_t digit = meters%10;
+
+		display_number(numbers[digit]);
+
+		meters/=10;
 	}
 }
 
@@ -119,6 +149,10 @@ void dir_disp_task(void *pvParameter){
 
 		struct dir_data currDir;
 		get_dir_status(&currDir);
+
+		display_meters(currMeters);
+		currMeters++;
+		currMeters%=10;
 
 		if(prevDir.dir == currDir.dir && prevDir.meters == currDir.meters){
 			continue;

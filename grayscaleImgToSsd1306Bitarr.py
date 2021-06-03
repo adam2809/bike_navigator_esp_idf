@@ -39,10 +39,30 @@ def get_bit_arr_str_from_img(img_arr):
         page += '}'
         page += ',' if i != 7 else ''
         res += page+"\n"
-    res += '}\n'
+    res += '}'
 
     return res
 
+def get_nums_arr_of_bitarrs():
+    nums = []
+
+    nums.append(cv2.imread("res/numbers/zero.png",0))
+    nums.append(cv2.imread("res/numbers/one.png",0))
+    nums.append(cv2.imread("res/numbers/two.png",0))
+    nums.append(cv2.imread("res/numbers/three.png",0))
+    nums.append(cv2.imread("res/numbers/four.png",0))
+    nums.append(cv2.imread("res/numbers/five.png",0))
+    nums.append(cv2.imread("res/numbers/six.png",0))
+    nums.append(cv2.imread("res/numbers/seven.png",0))
+    nums.append(cv2.imread("res/numbers/eight.png",0))
+    nums.append(cv2.imread("res/numbers/nine.png",0))
+
+    res = "{\n"
+    for n in nums:
+        res+=get_bit_arr_str_from_img(n)+","
+    res=res[:-1]
+    res+="\n}"
+    return res
 
 if __name__ == '__main__':
     if(len(sys.argv) != 2):
