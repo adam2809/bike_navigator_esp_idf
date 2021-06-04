@@ -164,7 +164,7 @@ void write_number_icon(uint8_t dest[MAX_PAGE_COUNT][NUMBER_WIDTH],uint8_t icon[N
 		display_page = display_pixel/8;
 	}
 
-	// Write what is left
+	// Write what is left of last page of number on the beginning of next display page
 	if (number_pixel < NUMBER_PAGE_COUNT*8){
 		for(int seg=0;seg<NUMBER_WIDTH;seg++){
 			int pixels_to_end = NUMBER_PAGE_COUNT*8 - number_pixel;
@@ -181,23 +181,33 @@ void write_number_icon(uint8_t dest[MAX_PAGE_COUNT][NUMBER_WIDTH],uint8_t icon[N
 
 
 void display_meters(uint32_t meters){
-	if(meters == 0){
-		// display_numbers(numbers[0]);
+	uint8_t meters_display[MAX_PAGE_COUNT][NUMBER_WIDTH] = {0};
+
+	if(meters == 0){	
+		write_number_icon(meters_display,numbers[0],0,3);
+		display_numbers(meters_display);
+		return;
+	}
+
+	if(meters >= 1000){	
+		write_number_icon(meters_display,greater_than,42,3);
+		write_number_icon(meters_display,numbers[1],21,3);
+		write_number_icon(meters_display,km,0,3);
+		display_numbers(meters_display);
 		return;
 	}
 
 	
-	uint8_t squashed_numbers[MAX_PAGE_COUNT][NUMBER_WIDTH] = {0};
 	int curr_pixel = 0;
 	while(meters != 0){
 		uint32_t digit = meters%10;
 
-		write_number_icon(squashed_numbers,numbers[digit],curr_pixel,3);
+		write_number_icon(meters_display,numbers[digit],curr_pixel,3);
 
 		meters/=10;
 		curr_pixel+=21;
 	}
-	display_numbers(squashed_numbers);
+	display_numbers(meters_display);
 }
 
 void update_dir_display(struct dir_data* data){
@@ -223,7 +233,7 @@ void update_dir_display(struct dir_data* data){
 	ESP_LOGI(tag,"Displaying %d meters",data->meters);
 }
 
-int currMeters=100;
+int currMeters=700;
 void dir_disp_task(void *pvParameter){
     while(1){
         vTaskDelay(1000 / portTICK_PERIOD_MS);
@@ -233,7 +243,7 @@ void dir_disp_task(void *pvParameter){
 
 		display_meters(currMeters);
 		currMeters+=100;
-		currMeters%=1000;
+		currMeters%=1500;
 
 		if(prevDir.dir == currDir.dir && prevDir.meters == currDir.meters){
 			continue;
