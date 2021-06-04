@@ -176,8 +176,6 @@ void write_number_icon(uint8_t dest[MAX_PAGE_COUNT][NUMBER_WIDTH],uint8_t icon[N
 			dest[display_page][seg] = old_left | new_right;
 		}
 	}
-
-	ESP_LOGI(tag,"Writing what is left middle %d",dest[display_page][15]);
 }
 
 
@@ -262,5 +260,5 @@ void app_main(void)
 	config_display();
 	vTaskDelay(1000 / portTICK_PERIOD_MS);
 
-	xTaskCreate(&dir_disp_task, "display_dir_on_oled", 2048, NULL, 5, NULL);
+	xTaskCreate(&dir_disp_task, "display_dir_on_oled", 4098, NULL, 5, NULL);
 }
