@@ -27,11 +27,13 @@
  CONFIG_RESET_GPIO
 */
 #define tag "SSD1306"
+#define METER_DISPLAY_SEG 50
 
 SSD1306_t dev;
 int center, top, bottom;
 char lineChar[20];
 struct dir_data prevDir = {NO_DIR,0};
+
 
 void clear_display(){
 	ssd1306_clear_screen(&dev, false);
@@ -90,34 +92,56 @@ void display_turn(uint8_t icon[TURN_PAGE_COUNT][TURN_WIDTH]){
 	}
 }
 
-void display_number(uint8_t number[NUMBER_PAGE_COUNT][NUMBER_WIDTH]){
-	uint8_t* buf[NUMBER_PAGE_COUNT];
-	for(int i=0;i<NUMBER_PAGE_COUNT;i++){
+void display_numbers(uint8_t numbers[MAX_PAGE_COUNT][NUMBER_WIDTH]){
+	uint8_t* buf[MAX_PAGE_COUNT];
+	for(int i=0;i<MAX_PAGE_COUNT;i++){
 		size_t size = NUMBER_WIDTH * sizeof(uint8_t);
 		buf[i] = (uint8_t*) malloc(size);
-		memcpy(buf[i],number[i],size);
+		memcpy(buf[i],numbers[i],size);
 	}
 
-	display_partial_image(&dev,buf,0,NUMBER_PAGE_COUNT,50,NUMBER_WIDTH);
+	display_partial_image(&dev,buf,0,MAX_PAGE_COUNT,METER_DISPLAY_SEG,NUMBER_WIDTH);
 
-	for(int i=0;i<NUMBER_PAGE_COUNT;i++){
+	for(int i=0;i<MAX_PAGE_COUNT;i++){
 		free(buf[i]);
 	}
 }
-int currMeters=0;
+
+
+
 void display_meters(uint32_t meters){
 	if(meters == 0){
-		display_number(numbers[0]);
+		// display_numbers(numbers[0]);
 		return;
 	}
 
+	
+	uint8_t squashed_numbers[MAX_PAGE_COUNT][NUMBER_WIDTH] = {0};
+	int curr_display_pixel = 0;
 	while(meters != 0){
 		uint32_t digit = meters%10;
+		int curr_number_pixel = 0;
 
-		display_number(numbers[digit]);
+		while (curr_number_pixel < NUMBER_IMAGE_WIDTH){
+			int curr_display_page = curr_display_pixel/8;
+			int curr_number_page = curr_number_pixel/8;
+
+			int now_writing_pixels_count = 8-(curr_display_pixel%8);
+
+			for(int i=0;i<NUMBER_WIDTH;i++){
+
+				uint8_t constant_part = (squashed_numbers[curr_display_page][i] << now_writing_pixels_count) >> now_writing_pixels_count;
+				uint8_t new_part = (numbers[digit][curr_number_page][i] >> (8 - now_writing_pixels_count)) << (8 - now_writing_pixels_count);
+				squashed_numbers[curr_display_page][i] = new_part | constant_part;
+			}
+			
+			curr_number_pixel+=now_writing_pixels_count;
+			curr_display_pixel+=now_writing_pixels_count;
+		}
 
 		meters/=10;
 	}
+	display_numbers(squashed_numbers);
 }
 
 void update_dir_display(struct dir_data* data){
@@ -143,6 +167,7 @@ void update_dir_display(struct dir_data* data){
 	ESP_LOGI(tag,"Displaying %d meters",data->meters);
 }
 
+int currMeters=5;
 void dir_disp_task(void *pvParameter){
     while(1){
         vTaskDelay(1000 / portTICK_PERIOD_MS);
@@ -152,7 +177,7 @@ void dir_disp_task(void *pvParameter){
 
 		display_meters(currMeters);
 		currMeters++;
-		currMeters%=10;
+		currMeters%=20;
 
 		if(prevDir.dir == currDir.dir && prevDir.meters == currDir.meters){
 			continue;
