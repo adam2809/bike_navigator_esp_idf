@@ -107,6 +107,77 @@ void display_numbers(uint8_t numbers[MAX_PAGE_COUNT][NUMBER_WIDTH]){
 	}
 }
 
+void write_number_icon(uint8_t dest[MAX_PAGE_COUNT][NUMBER_WIDTH],uint8_t icon[NUMBER_PAGE_COUNT][NUMBER_WIDTH],int display_pixel,int number_pixel){
+	int number_page = number_pixel/8;
+	int display_page = display_pixel/8;
+
+	// Write pixels from start pixel to the end of current page
+	if(display_pixel%8!=0){
+		int pixels_to_full_page_display = 8-(display_pixel%8);
+		int pixels_to_full_page_number = 8-(number_pixel%8);
+
+
+		for(int seg=0;seg<NUMBER_WIDTH;seg++){
+
+			uint8_t old_right = (dest[display_page][seg] << pixels_to_full_page_display) >> pixels_to_full_page_display;
+			uint8_t new_left;
+
+			if(pixels_to_full_page_number < pixels_to_full_page_display){
+				uint8_t curr_right = icon[number_page][seg] >> number_pixel%8;
+				uint8_t next_left = icon[number_page+1][seg] << pixels_to_full_page_number;
+
+				new_left = (next_left | curr_right)<< display_pixel%8;
+			}else{
+				new_left = (icon[number_page][seg] >> number_pixel%8) << (number_pixel%8+(pixels_to_full_page_number-pixels_to_full_page_display));
+			}
+
+			dest[display_page][seg] = new_left | old_right;
+		}
+
+		number_pixel+=pixels_to_full_page_display;
+		display_pixel+=pixels_to_full_page_display;
+		number_page = number_pixel/8;
+		display_page = display_pixel/8;
+	}
+
+	// Write full pages
+	while (number_pixel < NUMBER_PAGE_COUNT*8-8+1){
+		for(int seg=0;seg<NUMBER_WIDTH;seg++){
+			int pixels_to_full_page_number = 8-(number_pixel%8);
+
+			uint8_t new_display_page;
+			if(pixels_to_full_page_number < 8){
+				uint8_t curr_right = icon[number_page][seg] >> number_pixel%8;
+				uint8_t next_left = icon[number_page+1][seg] << pixels_to_full_page_number;
+
+				new_display_page = next_left | curr_right;
+			}else{
+				new_display_page = icon[number_page][seg];
+			}
+
+			dest[display_page][seg] = new_display_page;
+		}
+
+		number_pixel+=8;
+		display_pixel+=8;
+		number_page = number_pixel/8;
+		display_page = display_pixel/8;
+	}
+
+	// Write what is left
+	if (number_pixel < NUMBER_PAGE_COUNT*8){
+		for(int seg=0;seg<NUMBER_WIDTH;seg++){
+			int pixels_to_end = number_pixel - NUMBER_PAGE_COUNT*8;
+			int pixels_from_last_page = 8 - pixels_to_end;
+
+			uint8_t old_left = (dest[display_page][seg] >> pixels_to_end) << pixels_to_end;
+			uint8_t new_right = icon[number_page][seg] >> pixels_from_last_page;
+
+			dest[display_page][seg] = old_left | new_right;
+		}
+	}
+}
+
 
 
 void display_meters(uint32_t meters){
@@ -120,18 +191,30 @@ void display_meters(uint32_t meters){
 	int curr_display_pixel = 0;
 	while(meters != 0){
 		uint32_t digit = meters%10;
-		int curr_number_pixel = 0;
+		int curr_number_pixel = 3;
 
 		while (curr_number_pixel < NUMBER_IMAGE_WIDTH){
 			int curr_display_page = curr_display_pixel/8;
 			int curr_number_page = curr_number_pixel/8;
 
 			int now_writing_pixels_count = 8-(curr_display_pixel%8);
+			int magical_number_pixel = 8-(curr_number_pixel%8); 
 
 			for(int i=0;i<NUMBER_WIDTH;i++){
 
 				uint8_t constant_part = (squashed_numbers[curr_display_page][i] << now_writing_pixels_count) >> now_writing_pixels_count;
-				uint8_t new_part = (numbers[digit][curr_number_page][i] >> (8 - now_writing_pixels_count)) << (8 - now_writing_pixels_count);
+
+				uint8_t new_part;
+				if(curr_number_pixel+now_writing_pixels_count>=(curr_number_page+1)*8){
+					uint8_t new_part_right = numbers[digit][curr_number_page][i] >> curr_number_pixel%8;
+					uint8_t new_part_left = numbers[digit][curr_number_page+1][i] << magical_number_pixel;
+					new_part = new_part_left | new_part_right;
+					
+				}else{
+					new_part = (numbers[digit][curr_number_page][i] >> magical_number_pixel) << magical_number_pixel;
+				}
+
+
 				squashed_numbers[curr_display_page][i] = new_part | constant_part;
 			}
 
@@ -167,7 +250,7 @@ void update_dir_display(struct dir_data* data){
 	ESP_LOGI(tag,"Displaying %d meters",data->meters);
 }
 
-int currMeters=98;
+int currMeters=100;
 void dir_disp_task(void *pvParameter){
     while(1){
         vTaskDelay(1000 / portTICK_PERIOD_MS);
@@ -176,8 +259,8 @@ void dir_disp_task(void *pvParameter){
 		get_dir_status(&currDir);
 
 		display_meters(currMeters);
-		currMeters++;
-		currMeters%=110;
+		currMeters+=100;
+		currMeters%=1000;
 
 		if(prevDir.dir == currDir.dir && prevDir.meters == currDir.meters){
 			continue;
