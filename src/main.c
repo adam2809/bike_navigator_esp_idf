@@ -167,7 +167,7 @@ void write_number_icon(uint8_t dest[MAX_PAGE_COUNT][NUMBER_WIDTH],uint8_t icon[N
 	// Write what is left
 	if (number_pixel < NUMBER_PAGE_COUNT*8){
 		for(int seg=0;seg<NUMBER_WIDTH;seg++){
-			int pixels_to_end = number_pixel - NUMBER_PAGE_COUNT*8;
+			int pixels_to_end = NUMBER_PAGE_COUNT*8 - number_pixel;
 			int pixels_from_last_page = 8 - pixels_to_end;
 
 			uint8_t old_left = (dest[display_page][seg] >> pixels_to_end) << pixels_to_end;
@@ -176,6 +176,8 @@ void write_number_icon(uint8_t dest[MAX_PAGE_COUNT][NUMBER_WIDTH],uint8_t icon[N
 			dest[display_page][seg] = old_left | new_right;
 		}
 	}
+
+	ESP_LOGI(tag,"Writing what is left middle %d",dest[display_page][15]);
 }
 
 
@@ -188,41 +190,14 @@ void display_meters(uint32_t meters){
 
 	
 	uint8_t squashed_numbers[MAX_PAGE_COUNT][NUMBER_WIDTH] = {0};
-	int curr_display_pixel = 0;
+	int curr_pixel = 0;
 	while(meters != 0){
 		uint32_t digit = meters%10;
-		int curr_number_pixel = 3;
 
-		while (curr_number_pixel < NUMBER_IMAGE_WIDTH){
-			int curr_display_page = curr_display_pixel/8;
-			int curr_number_page = curr_number_pixel/8;
-
-			int now_writing_pixels_count = 8-(curr_display_pixel%8);
-			int magical_number_pixel = 8-(curr_number_pixel%8); 
-
-			for(int i=0;i<NUMBER_WIDTH;i++){
-
-				uint8_t constant_part = (squashed_numbers[curr_display_page][i] << now_writing_pixels_count) >> now_writing_pixels_count;
-
-				uint8_t new_part;
-				if(curr_number_pixel+now_writing_pixels_count>=(curr_number_page+1)*8){
-					uint8_t new_part_right = numbers[digit][curr_number_page][i] >> curr_number_pixel%8;
-					uint8_t new_part_left = numbers[digit][curr_number_page+1][i] << magical_number_pixel;
-					new_part = new_part_left | new_part_right;
-					
-				}else{
-					new_part = (numbers[digit][curr_number_page][i] >> magical_number_pixel) << magical_number_pixel;
-				}
-
-
-				squashed_numbers[curr_display_page][i] = new_part | constant_part;
-			}
-
-			curr_number_pixel+=now_writing_pixels_count;
-			curr_display_pixel+=now_writing_pixels_count;
-		}
+		write_number_icon(squashed_numbers,numbers[digit],curr_pixel,3);
 
 		meters/=10;
+		curr_pixel+=21;
 	}
 	display_numbers(squashed_numbers);
 }
