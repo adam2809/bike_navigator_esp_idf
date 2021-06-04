@@ -27,7 +27,7 @@
  CONFIG_RESET_GPIO
 */
 #define tag "SSD1306"
-#define METER_DISPLAY_SEG 50
+#define METER_DISPLAY_SEG 70
 
 SSD1306_t dev;
 int center, top, bottom;
@@ -77,17 +77,17 @@ void config_display(){
 	clear_display();
 }
 
-void display_turn(uint8_t icon[TURN_PAGE_COUNT][TURN_WIDTH]){
-	uint8_t* buf[TURN_PAGE_COUNT];
-	for(int i=0;i<TURN_PAGE_COUNT;i++){
-		size_t size = TURN_WIDTH * sizeof(uint8_t);
+void display_turn(uint8_t icon[MANEUVER_PAGE_COUNT][MANEUVER_WIDTH]){
+	uint8_t* buf[MANEUVER_PAGE_COUNT];
+	for(int i=0;i<MANEUVER_PAGE_COUNT;i++){
+		size_t size = MANEUVER_WIDTH * sizeof(uint8_t);
 		buf[i] = (uint8_t*) malloc(size);
 		memcpy(buf[i],icon[i],size);
 	}
 
-	display_partial_image(&dev,buf,0,TURN_PAGE_COUNT,0,TURN_WIDTH);
+	display_partial_image(&dev,buf,0,MANEUVER_PAGE_COUNT,0,MANEUVER_WIDTH);
 
-	for(int i=0;i<TURN_PAGE_COUNT;i++){
+	for(int i=0;i<MANEUVER_PAGE_COUNT;i++){
 		free(buf[i]);
 	}
 }

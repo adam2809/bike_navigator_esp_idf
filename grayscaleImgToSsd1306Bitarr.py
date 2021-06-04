@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import sys
+from os import walk
 
 def grayscale_to_negated_bitarr(img_arr):
     return np.vectorize(lambda x: 0 if x == 255 else 1)(img_arr)
@@ -64,14 +65,16 @@ def get_nums_arr_of_bitarrs():
     res+="\n}"
     return res
 
+MANEUVERS_PATH = "res/maneuvers/";
+
 if __name__ == '__main__':
-    if(len(sys.argv) != 2):
-        sys.exit(f"Wrong amount of command line arguments (is {len(sys.argv)-1} should be 1)")
-    
-    img = cv2.imread(sys.argv[1],0)
+    print("uint8_t numbers[DIGIT_COUNT][NUMBER_PAGE_COUNT][NUMBER_WIDTH] ="+get_nums_arr_of_bitarrs()+";\n\n")
 
-    if(img is None):
-        sys.exit(f"Image with name {sys.argv[1]} does not exist")
+    (_,_, filenames) = list(walk(MANEUVERS_PATH))[0]
+    for fn in filenames:
+        img = cv2.imread(MANEUVERS_PATH+fn,0)
+        print(f"uint8_t {fn[:fn.find('.')]}[MANEUVER_PAGE_COUNT][MANEUVER_WIDTH] = {get_bit_arr_str_from_img(img)};\n\n")
 
-    print(get_bit_arr_str_from_img(img))
+
+
 
