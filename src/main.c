@@ -134,7 +134,7 @@ void display_meters(uint32_t meters){
 				uint8_t new_part = (numbers[digit][curr_number_page][i] >> (8 - now_writing_pixels_count)) << (8 - now_writing_pixels_count);
 				squashed_numbers[curr_display_page][i] = new_part | constant_part;
 			}
-			
+
 			curr_number_pixel+=now_writing_pixels_count;
 			curr_display_pixel+=now_writing_pixels_count;
 		}
@@ -167,7 +167,7 @@ void update_dir_display(struct dir_data* data){
 	ESP_LOGI(tag,"Displaying %d meters",data->meters);
 }
 
-int currMeters=5;
+int currMeters=98;
 void dir_disp_task(void *pvParameter){
     while(1){
         vTaskDelay(1000 / portTICK_PERIOD_MS);
@@ -177,7 +177,7 @@ void dir_disp_task(void *pvParameter){
 
 		display_meters(currMeters);
 		currMeters++;
-		currMeters%=20;
+		currMeters%=110;
 
 		if(prevDir.dir == currDir.dir && prevDir.meters == currDir.meters){
 			continue;
