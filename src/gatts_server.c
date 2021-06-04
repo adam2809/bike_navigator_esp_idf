@@ -4,7 +4,7 @@
 
 
 
-uint8_t char_dirs[] = { TURN_RIGHT,0,0,0,0 };
+uint8_t char_dirs[] = { NO_DIR,0,0,0,0 };
 esp_gatt_char_prop_t a_property = 0;
 
 esp_attr_value_t gatts_demo_char1_val =

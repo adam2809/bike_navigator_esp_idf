@@ -211,19 +211,44 @@ void display_meters(uint32_t meters){
 }
 
 void update_dir_display(struct dir_data* data){
-	if(data->dir == TURN_RIGHT){
-		ESP_LOGI(tag,"Displaying turn right");
+	if(data->dir == TURN_SHARP_LEFT){
+		display_turn(turn_sharp_left);
+	}else if(data->dir == UTURN_RIGHT){
+		display_turn(uturn_right);
+	}else if(data->dir == TURN_SLIGHT_RIGHT){	
+		display_turn(turn_slight_right);
+	}else if(data->dir == MERGE){
+		display_turn(merge);
+	}else if(data->dir == ROUNDABOUT_LEFT){
+		display_turn(roundabout_left);
+	}else if(data->dir == ROUNDABOUT_RIGHT){	
+		display_turn(roundabout_right);
+	}else if(data->dir == UTURN_LEFT){
+		display_turn(uturn_left);
+	}else if(data->dir == TURN_LEFT){
+		display_turn(turn_left);
+	}else if(data->dir == RAMP_RIGHT){	
+		display_turn(ramp_right);
+	}else if(data->dir == TURN_RIGHT){
 		display_turn(turn_right);
+	}else if(data->dir == FORK_RIGHT){
+		display_turn(fork_right);
+	}else if(data->dir == FERRY){
+		display_turn(ferry);
 	}else if(data->dir == STRAIGHT){
-		ESP_LOGI(tag,"Displaying go straight");
 		display_turn(straight);
 	}else if(data->dir == TURN_LEFT){	
-		ESP_LOGI(tag,"Displaying turn left");
 		display_turn(turn_left);
+	}else if(data->dir == FORK_LEFT){		
+		display_turn(fork_left);
+	}else if(data->dir == FERRY_TRAIN){
+		display_turn(ferry_train);
+	}else if(data->dir == TURN_SHARP_RIGHT){	
+		display_turn(turn_sharp_right);
+	}else if(data->dir == RAMP_LEFT){
+		display_turn(ramp_left);
 	}else if(data->dir == NO_DIR){
-		ESP_LOGI(tag,"Displaying no dir");
 		clear_display();
-		return;
 	}else{
 		ESP_LOGW(tag,"Invalid direction in characteristic value attribute");
 	}
@@ -241,9 +266,7 @@ void dir_disp_task(void *pvParameter){
 		struct dir_data currDir;
 		get_dir_status(&currDir);
 
-		display_meters(currMeters);
-		currMeters+=100;
-		currMeters%=1500;
+		display_meters(currDir.meters);
 
 		if(prevDir.dir == currDir.dir && prevDir.meters == currDir.meters){
 			continue;

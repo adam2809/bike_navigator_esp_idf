@@ -31,9 +31,24 @@ void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp
 
 typedef enum {
     NO_DIR,
+    TURN_SHARP_LEFT,
+    UTURN_RIGHT,
+    TURN_SLIGHT_RIGHT,
+    MERGE,
+    ROUNDABOUT_LEFT,
+    ROUNDABOUT_RIGHT,
+    UTURN_LEFT,
+    TURN_SLIGHT_LEFT,
+    TURN_LEFT,
+    RAMP_RIGHT,
     TURN_RIGHT,
+    FORK_RIGHT,
     STRAIGHT,
-    TURN_LEFT
+    FORK_LEFT,
+    FERRY_TRAIN,
+    TURN_SHARP_RIGHT,
+    RAMP_LEFT,
+    FERRY
 } direction; 
 #define adv_config_flag      (1 << 0)
 #define scan_rsp_config_flag (1 << 1)
