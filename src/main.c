@@ -28,6 +28,8 @@
 */
 #define tag "SSD1306"
 #define METER_DISPLAY_SEG 70
+#define BT_ICON_DISPLAY_SEG 100
+#define BT_ICON_DISPLAY_PAGE 0
 
 SSD1306_t dev;
 int center, top, bottom;
@@ -103,6 +105,21 @@ void display_numbers(uint8_t numbers[MAX_PAGE_COUNT][NUMBER_WIDTH]){
 	display_partial_image(&dev,buf,0,MAX_PAGE_COUNT,METER_DISPLAY_SEG,NUMBER_WIDTH);
 
 	for(int i=0;i<MAX_PAGE_COUNT;i++){
+		free(buf[i]);
+	}
+}
+
+void display_bt_icon(uint8_t numbers[BT_ICON_PAGE_COUNT][BT_ICON_WIDTH]){
+	uint8_t* buf[BT_ICON_PAGE_COUNT];
+	for(int i=0;i<BT_ICON_PAGE_COUNT;i++){
+		size_t size = BT_ICON_WIDTH * sizeof(uint8_t);
+		buf[i] = (uint8_t*) malloc(size);
+		memcpy(buf[i],numbers[i],size);
+	}
+
+	display_partial_image(&dev,buf,BT_ICON_DISPLAY_PAGE,BT_ICON_PAGE_COUNT,BT_ICON_DISPLAY_SEG,BT_ICON_WIDTH);
+
+	for(int i=0;i<BT_ICON_PAGE_COUNT;i++){
 		free(buf[i]);
 	}
 }
@@ -266,13 +283,15 @@ void dir_disp_task(void *pvParameter){
 		struct dir_data currDir;
 		get_dir_status(&currDir);
 
-		display_meters(currDir.meters);
+		display_meters(1200);
 
-		if(prevDir.dir == currDir.dir && prevDir.meters == currDir.meters){
-			continue;
-		}
+		// if(prevDir.dir == currDir.dir && prevDir.meters == currDir.meters){
+		// 	continue;
+		// }
 
-        update_dir_display(&currDir);
+        // update_dir_display(&currDir);
+
+		display_bt_icon(bt_icon);
 
 		prevDir = currDir;
     }
