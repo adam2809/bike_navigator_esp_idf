@@ -65,15 +65,38 @@ def get_nums_arr_of_bitarrs():
     res+="\n}"
     return res
 
-MANEUVERS_PATH = "res/maneuvers/";
+MANEUVERS_PATH = "res/maneuvers";
+NUMBERS_PATH = "res/numbers";
 
 if __name__ == '__main__':
     print("uint8_t numbers[DIGIT_COUNT][NUMBER_PAGE_COUNT][NUMBER_WIDTH] ="+get_nums_arr_of_bitarrs()+";\n\n")
 
-    (_,_, filenames) = list(walk(MANEUVERS_PATH))[0]
-    for fn in filenames:
-        img = cv2.imread(MANEUVERS_PATH+fn,0)
-        print(f"uint8_t {fn[:fn.find('.')]}[MANEUVER_PAGE_COUNT][MANEUVER_WIDTH] = {get_bit_arr_str_from_img(img)};\n\n")
+    for (curr_dirr,_, filenames) in walk('res'):
+        page_count = "";
+        width = "";
+        if curr_dirr == NUMBERS_PATH:
+            continue
+
+        if curr_dirr == MANEUVERS_PATH:
+            page_count = "MANEUVER_PAGE_COUNT"
+            width = "MANEUVER_WIDTH"
+
+        for fn in filenames:
+            if fn in ['greater_than.png','km.png']:
+                page_count = "NUMBER_PAGE_COUNT"
+                width = "NUMBER_WIDTH"
+
+            if fn == 'bt_icon.png':
+                page_count = "BT_ICON_PAGE_COUNT"
+                width = "BT_ICON_WIDTH"
+
+            if page_count == "" or width == "":
+                print(f"Unset width or page count skipping {fn}")
+                continue
+
+            img = cv2.imread(curr_dirr+'/'+fn,0)
+            print(f"uint8_t {fn[:fn.find('.')]}[{page_count}][{width}] = {get_bit_arr_str_from_img(img)};\n\n")
+
 
 
 
