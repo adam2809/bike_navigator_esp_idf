@@ -2,7 +2,7 @@
 
 #define tag "gatt"
 
-
+bool bt_connected = false;
 
 uint8_t char_dirs[] = { NO_DIR,0,0,0,0 };
 esp_gatt_char_prop_t a_property = 0;
@@ -265,11 +265,13 @@ void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp
         gl_profile.conn_id = param->connect.conn_id;
         //start sent the update connection parameters to the peer device.
         esp_ble_gap_update_conn_params(&conn_params);
+        bt_connected = true;
         break;
     }
     case ESP_GATTS_DISCONNECT_EVT:
         ESP_LOGI(tag, "ESP_GATTS_DISCONNECT_EVT, disconnect reason 0x%x", param->disconnect.reason);
         esp_ble_gap_start_advertising(&adv_params);
+        bt_connected = false;
         break;
     case ESP_GATTS_CONF_EVT:
         ESP_LOGI(tag, "ESP_GATTS_CONF_EVT, status %d attr_handle %d", param->conf.status, param->conf.handle);
@@ -347,4 +349,8 @@ bool get_dir_status(struct dir_data* out){
     out->dir = prf_char[0];
     out->meters = prf_char[4] | (prf_char[3] << 8) | (prf_char[2] << 16) | (prf_char[1] << 24);
     return true;
+}
+
+bool is_bt_connected(){
+    return bt_connected;
 }

@@ -276,22 +276,38 @@ void update_dir_display(struct dir_data* data){
 }
 
 int currMeters=700;
+bool prev_bt_connected = false;
 void dir_disp_task(void *pvParameter){
+	display_meters(0);
+
     while(1){
         vTaskDelay(1000 / portTICK_PERIOD_MS);
 
 		struct dir_data currDir;
 		get_dir_status(&currDir);
 
-		display_meters(1200);
 
-		// if(prevDir.dir == currDir.dir && prevDir.meters == currDir.meters){
-		// 	continue;
-		// }
+		bool bt_connected = is_bt_connected();
+		if (bt_connected != prev_bt_connected){
+			if (bt_connected){
+				ESP_LOGI(tag,"Displaying bt icon");
+				display_bt_icon(bt_icon);
+			}else{
+				uint8_t empty_icon[BT_ICON_PAGE_COUNT][BT_ICON_WIDTH] = {0};
+				ESP_LOGI(tag,"Hiding bt icon");
+				display_bt_icon(empty_icon);
+			}
+		}
+		prev_bt_connected = bt_connected;
 
-        // update_dir_display(&currDir);
+		if(prevDir.dir == currDir.dir && prevDir.meters == currDir.meters){
+			continue;
+		}
 
-		display_bt_icon(bt_icon);
+        update_dir_display(&currDir);
+		display_meters(currDir.meters);
+
+		
 
 		prevDir = currDir;
     }
