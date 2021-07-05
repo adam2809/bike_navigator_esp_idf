@@ -4,7 +4,7 @@
 
 bool bt_connected = false;
 
-uint8_t char_dirs[] = { NO_DIR,0,0,0,0 };
+uint8_t char_dirs[] = { NO_DIR,0,0,0,0,0 };
 esp_gatt_char_prop_t a_property = 0;
 
 esp_attr_value_t gatts_demo_char1_val =
@@ -335,8 +335,9 @@ void setup_ble(){
 
 bool get_dir_status(struct dir_data* out){
     uint16_t length = DIR_DATA_LENGTH;
-    const uint8_t *prf_char;
-    esp_err_t get_attr_ret = esp_ble_gatts_get_attr_value(gl_profile.char_handle,  &length, &prf_char);
+    const uint8_t *characteristic_chars;
+
+    esp_err_t get_attr_ret = esp_ble_gatts_get_attr_value(gl_profile.char_handle,  &length, &characteristic_chars);
     if (get_attr_ret == ESP_FAIL){
         ESP_LOGE(tag, "Could not get attribute value (Handle %x)",gl_profile.char_handle);
         return false;
@@ -346,8 +347,10 @@ bool get_dir_status(struct dir_data* out){
         return false;
     }
 
-    out->dir = prf_char[0];
-    out->meters = prf_char[4] | (prf_char[3] << 8) | (prf_char[2] << 16) | (prf_char[1] << 24);
+    out->dir = characteristic_chars[0];
+    out->meters = characteristic_chars[4] | (characteristic_chars[3] << 8) | (characteristic_chars[2] << 16) | (characteristic_chars[1] << 24);
+    out->speed = characteristic_chars[5];
+    
     return true;
 }
 

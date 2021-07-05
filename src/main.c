@@ -225,54 +225,54 @@ void display_meters(uint32_t meters){
 		curr_pixel+=21;
 	}
 	display_numbers(meters_display);
+
+	char meters_str[10];
+	sprintf(meters_str,"%dm",meters);
+	ESP_LOGI(tag,"Displaying %d meters",meters);
 }
 
-void update_dir_display(struct dir_data* data){
-	if(data->dir == TURN_SHARP_LEFT){
+void display_dir(direction dir){
+	if(dir == TURN_SHARP_LEFT){
 		display_turn(turn_sharp_left);
-	}else if(data->dir == UTURN_RIGHT){
+	}else if(dir == UTURN_RIGHT){
 		display_turn(uturn_right);
-	}else if(data->dir == TURN_SLIGHT_RIGHT){	
+	}else if(dir == TURN_SLIGHT_RIGHT){	
 		display_turn(turn_slight_right);
-	}else if(data->dir == MERGE){
+	}else if(dir == MERGE){
 		display_turn(merge);
-	}else if(data->dir == ROUNDABOUT_LEFT){
+	}else if(dir == ROUNDABOUT_LEFT){
 		display_turn(roundabout_left);
-	}else if(data->dir == ROUNDABOUT_RIGHT){	
+	}else if(dir == ROUNDABOUT_RIGHT){	
 		display_turn(roundabout_right);
-	}else if(data->dir == UTURN_LEFT){
+	}else if(dir == UTURN_LEFT){
 		display_turn(uturn_left);
-	}else if(data->dir == TURN_LEFT){
+	}else if(dir == TURN_LEFT){
 		display_turn(turn_left);
-	}else if(data->dir == RAMP_RIGHT){	
+	}else if(dir == RAMP_RIGHT){	
 		display_turn(ramp_right);
-	}else if(data->dir == TURN_RIGHT){
+	}else if(dir == TURN_RIGHT){
 		display_turn(turn_right);
-	}else if(data->dir == FORK_RIGHT){
+	}else if(dir == FORK_RIGHT){
 		display_turn(fork_right);
-	}else if(data->dir == FERRY){
+	}else if(dir == FERRY){
 		display_turn(ferry);
-	}else if(data->dir == STRAIGHT){
+	}else if(dir == STRAIGHT){
 		display_turn(straight);
-	}else if(data->dir == TURN_LEFT){	
+	}else if(dir == TURN_LEFT){	
 		display_turn(turn_left);
-	}else if(data->dir == FORK_LEFT){		
+	}else if(dir == FORK_LEFT){		
 		display_turn(fork_left);
-	}else if(data->dir == FERRY_TRAIN){
+	}else if(dir == FERRY_TRAIN){
 		display_turn(ferry_train);
-	}else if(data->dir == TURN_SHARP_RIGHT){	
+	}else if(dir == TURN_SHARP_RIGHT){	
 		display_turn(turn_sharp_right);
-	}else if(data->dir == RAMP_LEFT){
+	}else if(dir == RAMP_LEFT){
 		display_turn(ramp_left);
-	}else if(data->dir == NO_DIR){
+	}else if(dir == NO_DIR){
 		clear_display();
 	}else{
 		ESP_LOGW(tag,"Invalid direction in characteristic value attribute");
 	}
-
-	char meters_str[10];
-	sprintf(meters_str,"%dm",data->meters);
-	ESP_LOGI(tag,"Displaying %d meters",data->meters);
 }
 
 int currMeters=700;
@@ -304,10 +304,8 @@ void dir_disp_task(void *pvParameter){
 			continue;
 		}
 
-        update_dir_display(&currDir);
+        display_dir(currDir.dir);
 		display_meters(currDir.meters);
-
-		
 
 		prevDir = currDir;
     }
