@@ -24,7 +24,7 @@ void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp
 #define MANUFACTURER_DATA_LEN  17
 
 #define DIR_CHAR_VAL_LEN_MAX 0x40
-#define DIR_DATA_LENGTH 6
+#define DIR_DATA_LENGTH 7
 
 #define PREPARE_BUF_MAX_SIZE 1024
 
@@ -50,6 +50,14 @@ typedef enum {
     RAMP_LEFT,
     FERRY
 } direction; 
+
+
+typedef enum {
+    NOTHING,
+    NAVIGATION,
+    SPEEDOMETER
+} mode; 
+
 #define adv_config_flag      (1 << 0)
 #define scan_rsp_config_flag (1 << 1)
 
@@ -74,6 +82,7 @@ struct dir_data {
     direction dir;
     uint32_t meters;
     uint8_t speed;
+    mode mode;
 };
 
 
@@ -84,4 +93,5 @@ void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp
 void setup_ble();
 bool get_dir_status(struct dir_data* out);
 bool is_bt_connected();
+
 #endif

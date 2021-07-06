@@ -4,7 +4,7 @@
 
 bool bt_connected = false;
 
-uint8_t char_dirs[] = { NO_DIR,0,0,0,0,0 };
+uint8_t char_dirs[] = { NO_DIR,0,0,0,0,0,NOTHING };
 esp_gatt_char_prop_t a_property = 0;
 
 esp_attr_value_t gatts_demo_char1_val =
@@ -350,7 +350,8 @@ bool get_dir_status(struct dir_data* out){
     out->dir = characteristic_chars[0];
     out->meters = characteristic_chars[4] | (characteristic_chars[3] << 8) | (characteristic_chars[2] << 16) | (characteristic_chars[1] << 24);
     out->speed = characteristic_chars[5];
-    
+    out->mode = characteristic_chars[6];
+
     return true;
 }
 

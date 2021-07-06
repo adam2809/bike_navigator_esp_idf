@@ -34,7 +34,7 @@
 SSD1306_t dev;
 int center, top, bottom;
 char lineChar[20];
-struct dir_data prevDir = {NO_DIR,0};
+struct dir_data prevDir = { NO_DIR,0,0,NOTHING };
 
 
 void clear_display(){
@@ -275,10 +275,25 @@ void display_dir(direction dir){
 	}
 }
 
-int currMeters=700;
+
 bool prev_bt_connected = false;
+void display_bt_conn_status(){
+	bool bt_connected = is_bt_connected();
+	if (bt_connected != prev_bt_connected){
+		if (bt_connected){
+			ESP_LOGI(tag,"Displaying bt icon");
+			display_bt_icon(bt_icon);
+		}else{
+			uint8_t empty_icon[BT_ICON_PAGE_COUNT][BT_ICON_WIDTH] = {0};
+			ESP_LOGI(tag,"Hiding bt icon");
+			display_bt_icon(empty_icon);
+		}
+	}
+	prev_bt_connected = bt_connected;
+}
+
 void dir_disp_task(void *pvParameter){
-	display_meters(0);
+	clear_display();
 
     while(1){
         vTaskDelay(1000 / portTICK_PERIOD_MS);
@@ -286,26 +301,25 @@ void dir_disp_task(void *pvParameter){
 		struct dir_data currDir;
 		get_dir_status(&currDir);
 
-
-		bool bt_connected = is_bt_connected();
-		if (bt_connected != prev_bt_connected){
-			if (bt_connected){
-				ESP_LOGI(tag,"Displaying bt icon");
-				display_bt_icon(bt_icon);
-			}else{
-				uint8_t empty_icon[BT_ICON_PAGE_COUNT][BT_ICON_WIDTH] = {0};
-				ESP_LOGI(tag,"Hiding bt icon");
-				display_bt_icon(empty_icon);
+		switch (currDir.mode){
+		case NOTHING:
+			break;
+		case NAVIGATION:
+			if(prevDir.dir == currDir.dir && prevDir.meters == currDir.meters){
+				break;
 			}
-		}
-		prev_bt_connected = bt_connected;
 
-		if(prevDir.dir == currDir.dir && prevDir.meters == currDir.meters){
-			continue;
+			display_dir(currDir.dir);
+			display_meters(currDir.meters);
+			break;
+		case SPEEDOMETER:
+			display_meters(currDir.speed);
+			break;
+		default:
+			break;
 		}
 
-        display_dir(currDir.dir);
-		display_meters(currDir.meters);
+		display_bt_conn_status();
 
 		prevDir = currDir;
     }
