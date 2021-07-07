@@ -17,6 +17,7 @@ void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp
 
 #define GATTS_DISPLAY_SERVICE_UUID   0x00FF
 #define GATTS_DISPLAY_CHAR_UUID      0xFF01
+#define GATTS_MODE_CHAR_UUID      0xFF02
 #define GATTS_DESCR_UUID_TEST_A     0x3333
 #define GATTS_NUM_HANDLE_TEST_A     4
 
@@ -64,6 +65,9 @@ typedef enum {
 #define PROFILE_NUM 1
 #define PROFILE_A_APP_ID 0
 
+#define CHAR_COUNT 1
+#define DISPLAY_CHAR_INDEX 0
+
 struct gatts_profile_inst {
     esp_gatts_cb_t gatts_cb;
     uint16_t gatts_if;
@@ -71,12 +75,11 @@ struct gatts_profile_inst {
     uint16_t conn_id;
     uint16_t service_handle;
     esp_gatt_srvc_id_t service_id;
-    uint16_t char_handle;
-    esp_bt_uuid_t char_uuid;
-    esp_gatt_perm_t perm;
-    esp_gatt_char_prop_t property;
-    uint16_t descr_handle;
-    esp_bt_uuid_t descr_uuid;
+
+    uint16_t char_handle[CHAR_COUNT];
+    esp_bt_uuid_t char_uuid[CHAR_COUNT];
+    uint16_t descr_handle[CHAR_COUNT];
+    esp_bt_uuid_t descr_uuid[CHAR_COUNT];
 };
 struct dir_data {
     direction dir;

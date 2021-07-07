@@ -108,6 +108,10 @@ void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *par
     }
 }
 
+void add_characteristic(uint16_t char_uuid16){
+
+}
+
 void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param) {
     switch (event) {
     case ESP_GATTS_REG_EVT:
@@ -182,14 +186,14 @@ void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp
 
         ESP_LOGI(tag, "GATT_WRITE_EVT, value len %d, value :", param->write.len);
         esp_log_buffer_hex(tag, param->write.value, param->write.len);
-        if (gl_profile.char_handle == param->write.handle && param->write.len == DIR_DATA_LENGTH){
+        if (gl_profile.char_handle[DISPLAY_CHAR_INDEX] == param->write.handle && param->write.len == DIR_DATA_LENGTH){
             ESP_LOGI(tag, "Setting new value");
 
             for(int i=0;i<DIR_DATA_LENGTH;i++){
                 char_dirs[i] = param->write.value[i];
             }
-            esp_ble_gatts_set_attr_value(gl_profile.char_handle,sizeof(char_dirs),char_dirs);
-            esp_ble_gatts_send_indicate(gatts_if, param->write.conn_id, gl_profile.char_handle,sizeof(char_dirs), char_dirs, false);
+            esp_ble_gatts_set_attr_value(gl_profile.char_handle[DISPLAY_CHAR_INDEX],sizeof(char_dirs),char_dirs);
+            esp_ble_gatts_send_indicate(gatts_if, param->write.conn_id, gl_profile.char_handle[DISPLAY_CHAR_INDEX],sizeof(char_dirs), char_dirs, false);
         }
 
         if (param->write.need_rsp){
@@ -203,12 +207,12 @@ void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp
     case ESP_GATTS_CREATE_EVT:
         ESP_LOGI(tag, "CREATE_SERVICE_EVT, status %d,  service_handle %d\n", param->create.status, param->create.service_handle);
         gl_profile.service_handle = param->create.service_handle;
-        gl_profile.char_uuid.len = ESP_UUID_LEN_16;
-        gl_profile.char_uuid.uuid.uuid16 = GATTS_DISPLAY_CHAR_UUID;
+        gl_profile.char_uuid[DISPLAY_CHAR_INDEX].len = ESP_UUID_LEN_16;
+        gl_profile.char_uuid[DISPLAY_CHAR_INDEX].uuid.uuid16 = GATTS_DISPLAY_CHAR_UUID;
 
         esp_ble_gatts_start_service(gl_profile.service_handle);
         a_property = ESP_GATT_CHAR_PROP_BIT_READ | ESP_GATT_CHAR_PROP_BIT_WRITE | ESP_GATT_CHAR_PROP_BIT_NOTIFY;
-        esp_err_t add_char_ret = esp_ble_gatts_add_char(gl_profile.service_handle, &gl_profile.char_uuid,
+        esp_err_t add_char_ret = esp_ble_gatts_add_char(gl_profile.service_handle, &gl_profile.char_uuid[DISPLAY_CHAR_INDEX],
                                                         ESP_GATT_PERM_READ | ESP_GATT_PERM_WRITE,
                                                         a_property,
                                                         &gatts_demo_char1_val, NULL);
@@ -222,9 +226,9 @@ void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp
 
         ESP_LOGI(tag, "ADD_CHAR_EVT, status %d,  attr_handle %d, service_handle %d\n",
                 param->add_char.status, param->add_char.attr_handle, param->add_char.service_handle);
-        gl_profile.char_handle = param->add_char.attr_handle;
-        gl_profile.descr_uuid.len = ESP_UUID_LEN_16;
-        gl_profile.descr_uuid.uuid.uuid16 = ESP_GATT_UUID_CHAR_CLIENT_CONFIG;
+        gl_profile.char_handle[DISPLAY_CHAR_INDEX] = param->add_char.attr_handle;
+        gl_profile.descr_uuid[DISPLAY_CHAR_INDEX].len = ESP_UUID_LEN_16;
+        gl_profile.descr_uuid[DISPLAY_CHAR_INDEX].uuid.uuid16 = ESP_GATT_UUID_CHAR_CLIENT_CONFIG;
         esp_err_t get_attr_ret = esp_ble_gatts_get_attr_value(param->add_char.attr_handle,  &length, &prf_char);
         if (get_attr_ret == ESP_FAIL){
             ESP_LOGE(tag, "ILLEGAL HANDLE");
@@ -234,7 +238,7 @@ void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp
         for(int i = 0; i < length; i++){
             ESP_LOGI(tag, "prf_char[%x] =%x\n",i,prf_char[i]);
         }
-        esp_err_t add_descr_ret = esp_ble_gatts_add_char_descr(gl_profile.service_handle, &gl_profile.descr_uuid,
+        esp_err_t add_descr_ret = esp_ble_gatts_add_char_descr(gl_profile.service_handle, &gl_profile.descr_uuid[DISPLAY_CHAR_INDEX],
                                                                 ESP_GATT_PERM_READ | ESP_GATT_PERM_WRITE, NULL, NULL);
         if (add_descr_ret){
             ESP_LOGE(tag, "add char descr failed, error code =%x", add_descr_ret);
@@ -242,7 +246,7 @@ void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp
         break;
     }
     case ESP_GATTS_ADD_CHAR_DESCR_EVT:
-        gl_profile.descr_handle = param->add_char_descr.attr_handle;
+        gl_profile.descr_handle[DISPLAY_CHAR_INDEX] = param->add_char_descr.attr_handle;
         ESP_LOGI(tag, "ADD_DESCR_EVT, status %d, attr_handle %d, service_handle %d\n",
                  param->add_char_descr.status, param->add_char_descr.attr_handle, param->add_char_descr.service_handle);
         break;
@@ -337,9 +341,9 @@ bool get_dir_status(struct dir_data* out){
     uint16_t length = DIR_DATA_LENGTH;
     const uint8_t *characteristic_chars;
 
-    esp_err_t get_attr_ret = esp_ble_gatts_get_attr_value(gl_profile.char_handle,  &length, &characteristic_chars);
+    esp_err_t get_attr_ret = esp_ble_gatts_get_attr_value(gl_profile.char_handle[DISPLAY_CHAR_INDEX],  &length, &characteristic_chars);
     if (get_attr_ret == ESP_FAIL){
-        ESP_LOGE(tag, "Could not get attribute value (Handle %x)",gl_profile.char_handle);
+        ESP_LOGE(tag, "Could not get attribute value (Handle %x)",gl_profile.char_handle[DISPLAY_CHAR_INDEX]);
         return false;
     }
     if(length != DIR_DATA_LENGTH){
