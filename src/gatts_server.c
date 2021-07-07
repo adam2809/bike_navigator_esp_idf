@@ -79,7 +79,20 @@ struct gatts_profile_inst gl_profile = {
             .len = ESP_UUID_LEN_16,
             .uuid.uuid16 = GATTS_MODE_CHAR_UUID,
         },
+    },
+    .descr_uuid = {
+        [DISPLAY_CHAR_INDEX] = {
+            .len = ESP_UUID_LEN_16,
+            .uuid.uuid16 = ESP_GATT_UUID_CHAR_CLIENT_CONFIG
+        },
+        [MODE_CHAR_INDEX] = {
+            .len = ESP_UUID_LEN_16,
+            .uuid.uuid16 = ESP_GATT_UUID_CHAR_CLIENT_CONFIG
+        },
     }
+
+    // gl_profile.descr_uuid[DISPLAY_CHAR_INDEX].len = ESP_UUID_LEN_16;
+    // gl_profile.descr_uuid[DISPLAY_CHAR_INDEX].uuid.uuid16 = ESP_GATT_UUID_CHAR_CLIENT_CONFIG;
 };
 
 
@@ -259,22 +272,32 @@ void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp
 
         ESP_LOGI(tag, "ADD_CHAR_EVT, status %d,  attr_handle %d, service_handle %d\n",
                 param->add_char.status, param->add_char.attr_handle, param->add_char.service_handle);
-        gl_profile.char_handle[DISPLAY_CHAR_INDEX] = param->add_char.attr_handle;
-        gl_profile.descr_uuid[DISPLAY_CHAR_INDEX].len = ESP_UUID_LEN_16;
-        gl_profile.descr_uuid[DISPLAY_CHAR_INDEX].uuid.uuid16 = ESP_GATT_UUID_CHAR_CLIENT_CONFIG;
-        esp_err_t get_attr_ret = esp_ble_gatts_get_attr_value(param->add_char.attr_handle,  &length, &prf_char);
-        if (get_attr_ret == ESP_FAIL){
-            ESP_LOGE(tag, "ILLEGAL HANDLE");
-        }
 
-        ESP_LOGI(tag, "the gatts demo char length = %x\n", length);
-        for(int i = 0; i < length; i++){
-            ESP_LOGI(tag, "prf_char[%x] =%x\n",i,prf_char[i]);
-        }
-        esp_err_t add_descr_ret = esp_ble_gatts_add_char_descr(gl_profile.service_handle, &gl_profile.descr_uuid[DISPLAY_CHAR_INDEX],
-                                                                ESP_GATT_PERM_READ | ESP_GATT_PERM_WRITE, NULL, NULL);
-        if (add_descr_ret){
-            ESP_LOGE(tag, "add char descr failed, error code =%x", add_descr_ret);
+        for(int i=0;i<CHAR_COUNT;i++){
+            if(param->add_char.char_uuid.uuid.uuid16 == gl_profile.char_uuid[i].uuid.uuid16){
+                gl_profile.char_handle[i] = param->add_char.attr_handle;
+            }
+
+            esp_err_t get_attr_ret = esp_ble_gatts_get_attr_value(param->add_char.attr_handle,  &length, &prf_char);
+            if (get_attr_ret == ESP_FAIL){
+                ESP_LOGE(tag, "ILLEGAL HANDLE on characteristic index %d",i);
+            }
+
+            ESP_LOGI(tag, "Characteristic at index=%d created with length = %x\n",i,length);
+            for(int i = 0; i < length; i++){
+                ESP_LOGI(tag, "prf_char[%x] =%x\n",i,prf_char[i]);
+            }
+            esp_err_t add_descr_ret = esp_ble_gatts_add_char_descr(
+                gl_profile.service_handle, 
+                &gl_profile.descr_uuid[i],
+                ESP_GATT_PERM_READ | ESP_GATT_PERM_WRITE,
+                NULL,
+                NULL
+            );
+
+            if (add_descr_ret){
+                ESP_LOGE(tag, "add char at index=%d descr failed, error code =%x", i,add_descr_ret);
+            }
         }
         break;
     }
