@@ -4,15 +4,8 @@
 
 bool bt_connected = false;
 
-uint8_t char_dirs[] = { NO_DIR,0,0,0,0,0,NOTHING };
 esp_gatt_char_prop_t a_property = 0;
 
-esp_attr_value_t gatts_demo_char1_val =
-{
-    .attr_max_len = DIR_CHAR_VAL_LEN_MAX,
-    .attr_len     = sizeof(char_dirs),
-    .attr_value   = char_dirs,
-};
 uint8_t adv_config_done = 0;
 
 uint8_t adv_service_uuid128[32] = {
@@ -62,6 +55,17 @@ esp_ble_adv_params_t adv_params = {
 struct gatts_profile_inst gl_profile = {
     .gatts_cb = gatts_event_handler,
     .gatts_if = ESP_GATT_IF_NONE,
+    .char_attr = {
+        [DISPLAY_CHAR_INDEX] = {
+            .attr_max_len = DIR_CHAR_VAL_LEN_MAX,
+            .attr_len     = DISPLAY_CHAR_DATA_LEN,
+            .attr_value   = {NO_DIR,0,0,0,0,0},
+        }, 
+        [MODE_CHAR_INDEX] = {
+            .attr_max_len = DIR_CHAR_VAL_LEN_MAX,
+            .attr_len     = MODE_CHAR_DATA_LEN,
+            .attr_value   = {0},
+        }, 
 };
 
 
@@ -110,6 +114,21 @@ void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *par
 
 void add_characteristic(uint16_t char_uuid16){
 
+}
+
+void set_char_attr_value(uint8_t char_index,esp_ble_gatts_cb_param_t *param){
+    int char_data_len = gl_profile.char_attr[char_index].attr_len 
+    if (param->write.len == char_data_len){
+        ESP_LOGI(tag, "Setting new value");
+
+        uint8_t new_char_value[MAX_CHAR_DATA_LEN] = {0};
+
+        for(int i=0;i<char_data_len;i++){
+            new_char_value[i] = param->write.value[i];
+        }
+        esp_ble_gatts_set_attr_value(gl_profile.char_handle[char_index],char_data_len,new_char_value);
+        esp_ble_gatts_send_indicate(gatts_if, param->write.conn_id, gl_profile.char_handle[char_index],char_data_len, new_char_value, false);
+    }
 }
 
 void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param) {
@@ -186,14 +205,11 @@ void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp
 
         ESP_LOGI(tag, "GATT_WRITE_EVT, value len %d, value :", param->write.len);
         esp_log_buffer_hex(tag, param->write.value, param->write.len);
-        if (gl_profile.char_handle[DISPLAY_CHAR_INDEX] == param->write.handle && param->write.len == DIR_DATA_LENGTH){
-            ESP_LOGI(tag, "Setting new value");
-
-            for(int i=0;i<DIR_DATA_LENGTH;i++){
-                char_dirs[i] = param->write.value[i];
+        
+        for (int i = 0; i < CHAR_COUNT; i++){
+            if(gl_profile.char_handle[i] == param->write.handle){
+                set_char_attr_value(i,param);
             }
-            esp_ble_gatts_set_attr_value(gl_profile.char_handle[DISPLAY_CHAR_INDEX],sizeof(char_dirs),char_dirs);
-            esp_ble_gatts_send_indicate(gatts_if, param->write.conn_id, gl_profile.char_handle[DISPLAY_CHAR_INDEX],sizeof(char_dirs), char_dirs, false);
         }
 
         if (param->write.need_rsp){
@@ -215,7 +231,7 @@ void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp
         esp_err_t add_char_ret = esp_ble_gatts_add_char(gl_profile.service_handle, &gl_profile.char_uuid[DISPLAY_CHAR_INDEX],
                                                         ESP_GATT_PERM_READ | ESP_GATT_PERM_WRITE,
                                                         a_property,
-                                                        &gatts_demo_char1_val, NULL);
+                                                        &gl_profile.char_attr[DISPLAY_CHAR_INDEX], NULL);
         if (add_char_ret){
             ESP_LOGE(tag, "add char failed, error code =%x",add_char_ret);
         }

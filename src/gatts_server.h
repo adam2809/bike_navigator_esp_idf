@@ -62,11 +62,15 @@ typedef enum {
 #define adv_config_flag      (1 << 0)
 #define scan_rsp_config_flag (1 << 1)
 
-#define PROFILE_NUM 1
 #define PROFILE_A_APP_ID 0
 
-#define CHAR_COUNT 1
+#define MAX_CHAR_DATA_LEN 4
+#define CHAR_COUNT 2
+
 #define DISPLAY_CHAR_INDEX 0
+#define DISPLAY_CHAR_DATA_LEN 6
+#define MODE_CHAR_INDEX 1
+#define MODE_CHAR_DATA_LEN 1
 
 struct gatts_profile_inst {
     esp_gatts_cb_t gatts_cb;
@@ -78,6 +82,8 @@ struct gatts_profile_inst {
 
     uint16_t char_handle[CHAR_COUNT];
     esp_bt_uuid_t char_uuid[CHAR_COUNT];
+    esp_attr_value_t char_attr[CHAR_COUNT];
+
     uint16_t descr_handle[CHAR_COUNT];
     esp_bt_uuid_t descr_uuid[CHAR_COUNT];
 };
