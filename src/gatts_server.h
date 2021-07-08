@@ -24,8 +24,7 @@ void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp
 #define DEVICE_NAME            "BIKE_NAVIGATOR"
 #define MANUFACTURER_DATA_LEN  17
 
-#define DIR_CHAR_VAL_LEN_MAX 0x40
-#define DIR_DATA_LENGTH 7
+#define CHAR_VAL_LEN_MAX 0x40
 
 #define PREPARE_BUF_MAX_SIZE 1024
 
@@ -69,6 +68,7 @@ typedef enum {
 
 #define DISPLAY_CHAR_INDEX 0
 #define DISPLAY_CHAR_DATA_LEN 6
+
 #define MODE_CHAR_INDEX 1
 #define MODE_CHAR_DATA_LEN 1
 

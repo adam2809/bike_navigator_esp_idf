@@ -60,12 +60,12 @@ struct gatts_profile_inst gl_profile = {
     .gatts_if = ESP_GATT_IF_NONE,
     .char_attr = {
         [DISPLAY_CHAR_INDEX] = {
-            .attr_max_len = DIR_CHAR_VAL_LEN_MAX,
+            .attr_max_len = CHAR_VAL_LEN_MAX,
             .attr_len     = DISPLAY_CHAR_DATA_LEN,
             .attr_value   = display_char_attr_value
         }, 
         [MODE_CHAR_INDEX] = {
-            .attr_max_len = DIR_CHAR_VAL_LEN_MAX,
+            .attr_max_len = CHAR_VAL_LEN_MAX,
             .attr_len     = MODE_CHAR_DATA_LEN,
             .attr_value   = mode_char_attr_value
         },
@@ -391,7 +391,7 @@ void setup_ble(){
 }
 
 bool get_dir_status(struct dir_data* out){
-    uint16_t length = DIR_DATA_LENGTH;
+    uint16_t length = DISPLAY_CHAR_DATA_LEN;
     const uint8_t *characteristic_chars;
 
     esp_err_t get_attr_ret = esp_ble_gatts_get_attr_value(gl_profile.char_handle[DISPLAY_CHAR_INDEX],  &length, &characteristic_chars);
@@ -399,7 +399,7 @@ bool get_dir_status(struct dir_data* out){
         ESP_LOGE(tag, "Could not get attribute value (Handle %x)",gl_profile.char_handle[DISPLAY_CHAR_INDEX]);
         return false;
     }
-    if(length != DIR_DATA_LENGTH){
+    if(length != DISPLAY_CHAR_DATA_LEN){
         ESP_LOGE(tag, "Wrong attribute value length");
         return false;
     }
@@ -407,7 +407,7 @@ bool get_dir_status(struct dir_data* out){
     out->dir = characteristic_chars[0];
     out->meters = characteristic_chars[4] | (characteristic_chars[3] << 8) | (characteristic_chars[2] << 16) | (characteristic_chars[1] << 24);
     out->speed = characteristic_chars[5];
-    out->mode = characteristic_chars[6];
+    out->mode = 2;
 
     return true;
 }
