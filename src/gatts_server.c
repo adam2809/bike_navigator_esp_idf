@@ -90,9 +90,6 @@ struct gatts_profile_inst gl_profile = {
             .uuid.uuid16 = ESP_GATT_UUID_CHAR_CLIENT_CONFIG
         },
     }
-
-    // gl_profile.descr_uuid[DISPLAY_CHAR_INDEX].len = ESP_UUID_LEN_16;
-    // gl_profile.descr_uuid[DISPLAY_CHAR_INDEX].uuid.uuid16 = ESP_GATT_UUID_CHAR_CLIENT_CONFIG;
 };
 
 
@@ -276,6 +273,7 @@ void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp
         for(int i=0;i<CHAR_COUNT;i++){
             if(param->add_char.char_uuid.uuid.uuid16 == gl_profile.char_uuid[i].uuid.uuid16){
                 gl_profile.char_handle[i] = param->add_char.attr_handle;
+                continue;
             }
 
             esp_err_t get_attr_ret = esp_ble_gatts_get_attr_value(param->add_char.attr_handle,  &length, &prf_char);
@@ -302,7 +300,6 @@ void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp
         break;
     }
     case ESP_GATTS_ADD_CHAR_DESCR_EVT:
-        gl_profile.descr_handle[DISPLAY_CHAR_INDEX] = param->add_char_descr.attr_handle;
         ESP_LOGI(tag, "ADD_DESCR_EVT, status %d, attr_handle %d, service_handle %d\n",
                  param->add_char_descr.status, param->add_char_descr.attr_handle, param->add_char_descr.service_handle);
         break;

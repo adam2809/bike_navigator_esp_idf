@@ -84,7 +84,6 @@ struct gatts_profile_inst {
     esp_bt_uuid_t char_uuid[CHAR_COUNT];
     esp_attr_value_t char_attr[CHAR_COUNT];
 
-    uint16_t descr_handle[CHAR_COUNT];
     esp_bt_uuid_t descr_uuid[CHAR_COUNT];
 };
 struct dir_data {
