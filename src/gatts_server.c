@@ -137,6 +137,7 @@ void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *par
 }
 
 esp_err_t add_characteristic(int char_index){
+    ESP_LOGI(tag, "Adding characteristic with uuid=0x%x and index=%d",gl_profile.char_uuid[char_index].uuid.uuid16,char_index);
     return esp_ble_gatts_add_char(
         gl_profile.service_handle, 
         &gl_profile.char_uuid[char_index],
@@ -198,7 +199,7 @@ void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp
         }
         adv_config_done |= scan_rsp_config_flag;
 
-        ret = esp_ble_gatts_create_service(gatts_if, &gl_profile.service_id, GATTS_NUM_HANDLE_TEST_A);
+        ret = esp_ble_gatts_create_service(gatts_if, &gl_profile.service_id, GATTS_HANDLE_COUNT);
         if (ret){
             ESP_LOGE(tag, "create service failed, error code = %x", ret);
         }
@@ -269,12 +270,18 @@ void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp
 
         ESP_LOGI(tag, "ADD_CHAR_EVT, status %d,  attr_handle %d, service_handle %d\n",
                 param->add_char.status, param->add_char.attr_handle, param->add_char.service_handle);
+        
+        if(param->add_char.status != ESP_GATT_OK){
+            ESP_LOGE(tag, "Error %d while creating characteristic with uuid=%x",param->add_char.status,param->add_char.char_uuid.uuid.uuid16);
+            return;
+        }
 
         for(int i=0;i<CHAR_COUNT;i++){
-            if(param->add_char.char_uuid.uuid.uuid16 == gl_profile.char_uuid[i].uuid.uuid16){
-                gl_profile.char_handle[i] = param->add_char.attr_handle;
+            if(param->add_char.char_uuid.uuid.uuid16 != gl_profile.char_uuid[i].uuid.uuid16){
                 continue;
             }
+
+            gl_profile.char_handle[i] = param->add_char.attr_handle;
 
             esp_err_t get_attr_ret = esp_ble_gatts_get_attr_value(param->add_char.attr_handle,  &length, &prf_char);
             if (get_attr_ret == ESP_FAIL){
@@ -390,26 +397,34 @@ void setup_ble(){
     }
 }
 
+bool get_char_attr_value(const uint8_t **data,int char_index){
+    uint16_t length;
+    esp_err_t get_attr_ret = esp_ble_gatts_get_attr_value(gl_profile.char_handle[char_index],  &length, data);
+    
+    if (get_attr_ret == ESP_FAIL){
+        ESP_LOGE(tag, "Could not get attribute value (Handle %x)",gl_profile.char_handle[char_index]);
+        return false;
+    }
+    if(length != gl_profile.char_attr[char_index].attr_len){
+        ESP_LOGE(tag, "Wrong attribute value length is %d should be %d",length , gl_profile.char_attr[char_index].attr_len);
+        return false;
+    }
+
+    return true;
+}
+
 bool get_dir_status(struct dir_data* out){
-    uint16_t length = DISPLAY_CHAR_DATA_LEN;
     const uint8_t *characteristic_chars;
 
-    esp_err_t get_attr_ret = esp_ble_gatts_get_attr_value(gl_profile.char_handle[DISPLAY_CHAR_INDEX],  &length, &characteristic_chars);
-    if (get_attr_ret == ESP_FAIL){
-        ESP_LOGE(tag, "Could not get attribute value (Handle %x)",gl_profile.char_handle[DISPLAY_CHAR_INDEX]);
-        return false;
-    }
-    if(length != DISPLAY_CHAR_DATA_LEN){
-        ESP_LOGE(tag, "Wrong attribute value length");
-        return false;
-    }
-
+    bool ret = get_char_attr_value(&characteristic_chars,DISPLAY_CHAR_INDEX);
     out->dir = characteristic_chars[0];
     out->meters = characteristic_chars[4] | (characteristic_chars[3] << 8) | (characteristic_chars[2] << 16) | (characteristic_chars[1] << 24);
     out->speed = characteristic_chars[5];
-    out->mode = 2;
 
-    return true;
+    ret = get_char_attr_value(&characteristic_chars,MODE_CHAR_INDEX);
+    out->mode = characteristic_chars[0];
+
+    return ret;
 }
 
 bool is_bt_connected(){
