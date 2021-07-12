@@ -53,16 +53,28 @@ esp_ble_adv_params_t adv_params = {
 };
 
 
-uint8_t display_char_attr_value[DISPLAY_CHAR_DATA_LEN] = {NO_DIR,0,0,0,0,0};
-uint8_t mode_char_attr_value[DISPLAY_CHAR_DATA_LEN] = {0};
+uint8_t dir_char_attr_value[DIR_CHAR_DATA_LEN] = {NO_DIR};
+uint8_t meters_char_attr_value[METERS_CHAR_DATA_LEN] = {0,0,0,0};
+uint8_t speed_char_attr_value[SPEED_CHAR_DATA_LEN] = {0};
+uint8_t mode_char_attr_value[MODE_CHAR_DATA_LEN] = {0};
 struct gatts_profile_inst gl_profile = {
     .gatts_cb = gatts_event_handler,
     .gatts_if = ESP_GATT_IF_NONE,
     .char_attr = {
-        [DISPLAY_CHAR_INDEX] = {
+        [DIR_CHAR_INDEX] = {
             .attr_max_len = CHAR_VAL_LEN_MAX,
-            .attr_len     = DISPLAY_CHAR_DATA_LEN,
-            .attr_value   = display_char_attr_value
+            .attr_len     = DIR_CHAR_DATA_LEN,
+            .attr_value   = dir_char_attr_value
+        }, 
+        [METERS_CHAR_INDEX] = {
+            .attr_max_len = CHAR_VAL_LEN_MAX,
+            .attr_len     = METERS_CHAR_DATA_LEN,
+            .attr_value   = meters_char_attr_value
+        }, 
+        [SPEED_CHAR_INDEX] = {
+            .attr_max_len = CHAR_VAL_LEN_MAX,
+            .attr_len     = SPEED_CHAR_DATA_LEN,
+            .attr_value   = speed_char_attr_value
         }, 
         [MODE_CHAR_INDEX] = {
             .attr_max_len = CHAR_VAL_LEN_MAX,
@@ -71,9 +83,17 @@ struct gatts_profile_inst gl_profile = {
         },
     },
     .char_uuid = {
-        [DISPLAY_CHAR_INDEX] = {
+        [DIR_CHAR_INDEX] = {
             .len = ESP_UUID_LEN_16,
-            .uuid.uuid16 = GATTS_DISPLAY_CHAR_UUID,
+            .uuid.uuid16 = GATTS_DIR_CHAR_UUID,
+        },
+        [METERS_CHAR_INDEX] = {
+            .len = ESP_UUID_LEN_16,
+            .uuid.uuid16 = GATTS_METERS_CHAR_UUID,
+        },
+        [SPEED_CHAR_INDEX] = {
+            .len = ESP_UUID_LEN_16,
+            .uuid.uuid16 = GATTS_SPEED_CHAR_UUID,
         },
         [MODE_CHAR_INDEX] = {
             .len = ESP_UUID_LEN_16,
@@ -81,7 +101,15 @@ struct gatts_profile_inst gl_profile = {
         },
     },
     .descr_uuid = {
-        [DISPLAY_CHAR_INDEX] = {
+        [DIR_CHAR_INDEX] = {
+            .len = ESP_UUID_LEN_16,
+            .uuid.uuid16 = ESP_GATT_UUID_CHAR_CLIENT_CONFIG
+        },
+        [METERS_CHAR_INDEX] = {
+            .len = ESP_UUID_LEN_16,
+            .uuid.uuid16 = ESP_GATT_UUID_CHAR_CLIENT_CONFIG
+        },
+        [SPEED_CHAR_INDEX] = {
             .len = ESP_UUID_LEN_16,
             .uuid.uuid16 = ESP_GATT_UUID_CHAR_CLIENT_CONFIG
         },
@@ -416,10 +444,14 @@ bool get_char_attr_value(const uint8_t **data,int char_index){
 bool get_dir_status(struct dir_data* out){
     const uint8_t *characteristic_chars;
 
-    bool ret = get_char_attr_value(&characteristic_chars,DISPLAY_CHAR_INDEX);
+    bool ret = get_char_attr_value(&characteristic_chars,DIR_CHAR_INDEX);
     out->dir = characteristic_chars[0];
-    out->meters = characteristic_chars[4] | (characteristic_chars[3] << 8) | (characteristic_chars[2] << 16) | (characteristic_chars[1] << 24);
-    out->speed = characteristic_chars[5];
+
+    ret = get_char_attr_value(&characteristic_chars,METERS_CHAR_INDEX);
+    out->meters = characteristic_chars[3] | (characteristic_chars[2] << 8) | (characteristic_chars[1] << 16) | (characteristic_chars[0] << 24);
+    
+    ret = get_char_attr_value(&characteristic_chars,SPEED_CHAR_INDEX);
+    out->speed = characteristic_chars[0];
 
     ret = get_char_attr_value(&characteristic_chars,MODE_CHAR_INDEX);
     out->mode = characteristic_chars[0];

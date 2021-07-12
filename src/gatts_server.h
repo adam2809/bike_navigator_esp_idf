@@ -16,7 +16,7 @@
 void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param);
 
 #define GATTS_DISPLAY_SERVICE_UUID   0x00FF
-#define GATTS_HANDLE_COUNT     7
+#define GATTS_HANDLE_COUNT     13
 
 #define DEVICE_NAME            "BIKE_NAVIGATOR"
 #define MANUFACTURER_DATA_LEN  17
@@ -31,14 +31,22 @@ void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_if, esp
 #define PROFILE_A_APP_ID 0
 
 #define MAX_CHAR_DATA_LEN 4
-#define CHAR_COUNT 2
+#define CHAR_COUNT 4
 
-#define GATTS_DISPLAY_CHAR_UUID 0xFF01
-#define DISPLAY_CHAR_INDEX 0
-#define DISPLAY_CHAR_DATA_LEN 6
+#define GATTS_DIR_CHAR_UUID 0xFF01
+#define DIR_CHAR_INDEX 0
+#define DIR_CHAR_DATA_LEN 1
 
-#define GATTS_MODE_CHAR_UUID 0xFF02
-#define MODE_CHAR_INDEX 1
+#define GATTS_METERS_CHAR_UUID 0xFF02
+#define METERS_CHAR_INDEX 1
+#define METERS_CHAR_DATA_LEN 4
+
+#define GATTS_SPEED_CHAR_UUID 0xFF03
+#define SPEED_CHAR_INDEX 2
+#define SPEED_CHAR_DATA_LEN 1
+
+#define GATTS_MODE_CHAR_UUID 0xFF04
+#define MODE_CHAR_INDEX 3
 #define MODE_CHAR_DATA_LEN 1
 
 
