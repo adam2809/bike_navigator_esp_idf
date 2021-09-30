@@ -268,6 +268,8 @@ void display_dir(direction dir){
 		display_turn(turn_sharp_right);
 	}else if(dir == RAMP_LEFT){
 		display_turn(ramp_left);
+	}else if(dir == FINISH){
+		display_turn(finish);
 	}else if(dir == NO_DIR){
 		clear_display();
 	}else{

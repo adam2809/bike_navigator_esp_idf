@@ -96,8 +96,3 @@ if __name__ == '__main__':
 
             img = cv2.imread(curr_dirr+'/'+fn,0)
             print(f"uint8_t {fn[:fn.find('.')]}[{page_count}][{width}] = {get_bit_arr_str_from_img(img)};\n\n")
-
-
-
-
-

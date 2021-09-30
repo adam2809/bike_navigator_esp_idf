@@ -69,7 +69,8 @@ typedef enum {
     FERRY_TRAIN,
     TURN_SHARP_RIGHT,
     RAMP_LEFT,
-    FERRY
+    FERRY,
+    FINISH
 } direction; 
 
 
