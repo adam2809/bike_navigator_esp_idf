@@ -1,6 +1,6 @@
-<mxfile host="app.diagrams.net" modified="2022-01-26T14:51:02.870Z" agent="5.0 (X11)" etag="WJMiM_1MPlfE30q71bOv" version="16.4.7" type="github">
+<mxfile host="app.diagrams.net" modified="2022-01-26T14:58:49.826Z" agent="5.0 (X11)" etag="01lKDzTBicQq9_xZSc6D" version="16.4.7" type="github">
   <diagram name="Page-1" id="5f0bae14-7c28-e335-631c-24af17079c00">
-    <mxGraphModel dx="989" dy="1927" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" background="none" math="0" shadow="0">
+    <mxGraphModel dx="1153" dy="2107" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" background="none" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -29,7 +29,12 @@
           <mxGeometry x="840" y="135" width="110" height="50" as="geometry" />
         </mxCell>
         <mxCell id="5YQAwgCXz7LlOUfw-BGM-56" style="edgeStyle=orthogonalEdgeStyle;shape=connector;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.7;entryDx=0;entryDy=0;labelBackgroundColor=default;fontFamily=Helvetica;fontSize=11;fontColor=default;endArrow=classic;strokeColor=default;" edge="1" parent="1" source="39150e848f15840c-10" target="5YQAwgCXz7LlOUfw-BGM-51">
-          <mxGeometry relative="1" as="geometry" />
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="960" y="630" />
+              <mxPoint x="960" y="389" />
+            </Array>
+          </mxGeometry>
         </mxCell>
         <mxCell id="39150e848f15840c-10" value="Motion detection" style="shape=component;align=left;spacingLeft=36;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;html=1;" parent="1" vertex="1">
           <mxGeometry x="705" y="600" width="160" height="60" as="geometry" />
@@ -111,13 +116,56 @@
           <mxGeometry x="1130" y="340" width="150" height="70" as="geometry" />
         </mxCell>
         <mxCell id="5YQAwgCXz7LlOUfw-BGM-54" value="&lt;div&gt;Motion detection triggers wake interrupt&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=11;fontColor=default;" vertex="1" parent="1">
-          <mxGeometry x="940" y="450" width="60" height="30" as="geometry" />
+          <mxGeometry x="900" y="450" width="60" height="30" as="geometry" />
         </mxCell>
         <mxCell id="5YQAwgCXz7LlOUfw-BGM-57" value="New letters and input start" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=11;fontColor=default;" vertex="1" parent="1">
           <mxGeometry x="1310" y="520" width="60" height="30" as="geometry" />
         </mxCell>
         <mxCell id="5YQAwgCXz7LlOUfw-BGM-60" value="Notify val 2" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=11;fontColor=default;" vertex="1" parent="1">
           <mxGeometry x="990" y="325" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="5YQAwgCXz7LlOUfw-BGM-62" value="Buzzer" style="verticalAlign=top;align=left;spacingTop=8;spacingLeft=2;spacingRight=12;shape=cube;size=10;direction=south;fontStyle=4;html=1;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="380" y="550" width="260" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="5YQAwgCXz7LlOUfw-BGM-63" value="Alarm" style="shape=component;align=left;spacingLeft=36;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;html=1;" vertex="1" parent="1">
+          <mxGeometry x="465" y="595" width="90" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="5YQAwgCXz7LlOUfw-BGM-64" style="edgeStyle=orthogonalEdgeStyle;shape=connector;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.7;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;labelBackgroundColor=default;fontFamily=Helvetica;fontSize=11;fontColor=default;endArrow=classic;strokeColor=default;" edge="1" parent="1" source="39150e848f15840c-10" target="5YQAwgCXz7LlOUfw-BGM-63">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="660" y="642" />
+              <mxPoint x="660" y="730" />
+              <mxPoint x="510" y="730" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5YQAwgCXz7LlOUfw-BGM-65" value="&lt;div&gt;Motion detection triggers alarm&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=11;fontColor=default;" vertex="1" parent="1">
+          <mxGeometry x="555" y="750" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="5YQAwgCXz7LlOUfw-BGM-67" style="edgeStyle=orthogonalEdgeStyle;shape=connector;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.7;entryDx=0;entryDy=0;labelBackgroundColor=default;fontFamily=Helvetica;fontSize=11;fontColor=default;endArrow=classic;strokeColor=default;" edge="1" parent="1" source="5YQAwgCXz7LlOUfw-BGM-51" target="5YQAwgCXz7LlOUfw-BGM-63">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1390" y="357" />
+              <mxPoint x="1390" y="810" />
+              <mxPoint x="445" y="810" />
+              <mxPoint x="445" y="637" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5YQAwgCXz7LlOUfw-BGM-68" value="&lt;div&gt;Wrong password triggers alarm&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=11;fontColor=default;" vertex="1" parent="1">
+          <mxGeometry x="690" y="770" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="5YQAwgCXz7LlOUfw-BGM-69" value="SIM7000" style="verticalAlign=top;align=left;spacingTop=8;spacingLeft=2;spacingRight=12;shape=cube;size=10;direction=south;fontStyle=4;html=1;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="380" y="340" width="300" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="5YQAwgCXz7LlOUfw-BGM-70" value="Blynk alarm and location streaming" style="shape=component;align=left;spacingLeft=36;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;fontFamily=Verdana;fontSize=12;html=1;" vertex="1" parent="1">
+          <mxGeometry x="400" y="415" width="260" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="5YQAwgCXz7LlOUfw-BGM-72" style="edgeStyle=orthogonalEdgeStyle;shape=connector;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;labelBackgroundColor=default;fontFamily=Helvetica;fontSize=11;fontColor=default;endArrow=classic;strokeColor=default;" edge="1" parent="1" source="5YQAwgCXz7LlOUfw-BGM-63" target="5YQAwgCXz7LlOUfw-BGM-70">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5YQAwgCXz7LlOUfw-BGM-73" value="Alarm trigger starts sending data" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=11;fontColor=default;" vertex="1" parent="1">
+          <mxGeometry x="530" y="510" width="60" height="30" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
